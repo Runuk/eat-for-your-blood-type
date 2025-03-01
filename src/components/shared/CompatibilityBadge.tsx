@@ -22,7 +22,7 @@ const getColor = (compatibility: CompatibilityStatus): string => {
   }
 };
 
-const getIcon = (compatibility: CompatibilityStatus) => {
+const getIcon = (compatibility: CompatibilityStatus): React.ReactElement => {
   switch (compatibility) {
     case 'beneficial':
       return <CheckCircleIcon />;
@@ -31,7 +31,8 @@ const getIcon = (compatibility: CompatibilityStatus) => {
     case 'avoid':
       return <CancelIcon />;
     default:
-      return null;
+      // Return a default icon instead of null to satisfy TypeScript
+      return <RemoveCircleIcon />;
   }
 };
 
