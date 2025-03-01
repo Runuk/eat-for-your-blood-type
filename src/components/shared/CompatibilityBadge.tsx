@@ -3,8 +3,7 @@ import { Chip, Tooltip } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-
-export type CompatibilityStatus = 'beneficial' | 'neutral' | 'avoid';
+import { CompatibilityStatus } from '../../types';
 
 interface CompatibilityBadgeProps {
   compatibility: CompatibilityStatus;

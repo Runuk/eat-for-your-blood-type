@@ -7,6 +7,7 @@ import { DebugPanel } from './components/debug/DebugPanel';
 import { theme } from './theme';
 import { AppRoutes } from './routes';
 import { AuthProvider } from './context/AuthContext';
+import { Layout } from './components/layout/Layout';
 
 const App: React.FC = () => {
   return (
@@ -15,7 +16,9 @@ const App: React.FC = () => {
         <CssBaseline />
         <AuthProvider>
           <BrowserRouter>
-            <AppRoutes />
+            <Layout>
+              <AppRoutes />
+            </Layout>
             {process.env.NODE_ENV === 'development' && <DebugPanel />}
           </BrowserRouter>
         </AuthProvider>

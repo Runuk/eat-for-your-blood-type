@@ -1,37 +1,48 @@
-import { useState } from 'react';
-import { Box, Grid, Paper, Typography } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
-import type { MealPlan, DailyMeals } from '../types';
+import React, { useState } from 'react';
+import { Box, Typography, Grid, Paper } from '@mui/material';
+import { createMealPlan } from '../services/mealPlanner';
 
-export const MealPlannerPage = () => {
-  const { user } = useAuth();
-  const [currentWeek, setCurrentWeek] = useState<string>(getCurrentWeekId());
-  const [mealPlan, setMealPlan] = useState<MealPlan>({
-    id: '1',
-    userId: user?.id || '',
-    title: 'My Meal Plan',
-    isPublic: false,
-    weeklyPlans: {},
-    ratings: [],
-    comments: []
-  });
+const MealPlannerPage: React.FC = () => {
+  const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
+  const [mealPlan, setMealPlan] = useState(createMealPlan(new Date()));
+
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>Meal Planner</Typography>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Meal Planner
+      </Typography>
+
       <Grid container spacing={2}>
-        {/* Week days */}
-        {getDaysOfWeek().map((day) => (
-          <Grid item xs={12} sm={6} md={3} key={day}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6">{day}</Typography>
-              {/* Meal slots */}
-              {['breakfast', 'lunch', 'dinner', 'snacks'].map((mealType) => (
-                <Box key={mealType} sx={{ mt: 2 }}>
-                  <Typography variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
+        {daysOfWeek.map((day) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={day}>
+            <Paper sx={{ p: 2, height: '100%' }}>
+              <Typography variant="h6" gutterBottom>
+                {day}
+              </Typography>
+              
+              {mealTypes.map((mealType) => (
+                <Box key={mealType} sx={{ mb: 2 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">
                     {mealType}
                   </Typography>
-                  {/* Implement drag and drop meal items here */}
+                  <Paper 
+                    variant="outlined" 
+                    sx={{ 
+                      p: 1, 
+                      minHeight: 50, 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: 'background.default'
+                    }}
+                  >
+                    <Typography variant="body2" color="text.secondary">
+                      + Add {mealType}
+                    </Typography>
+                  </Paper>
                 </Box>
               ))}
             </Paper>
@@ -40,4 +51,6 @@ export const MealPlannerPage = () => {
       </Grid>
     </Box>
   );
-}; 
+};
+
+export default MealPlannerPage; 

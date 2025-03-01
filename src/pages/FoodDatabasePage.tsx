@@ -1,40 +1,72 @@
-import React, { useState } from 'react';
-import { Box, Grid, Card, CardContent, Typography, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { foodDatabase } from '../services/foodDatabase';
+import React, { useState, useEffect } from 'react';
+import { 
+  Box, 
+  Typography, 
+  TextField, 
+  Grid, 
+  Card, 
+  CardContent, 
+  FormControl, 
+  InputLabel, 
+  Select, 
+  MenuItem,
+  SelectChangeEvent
+} from '@mui/material';
+import { getFoods, Food } from '../services/foodDatabase';
 import { useAuth } from '../context/AuthContext';
-import { FoodCategory, Compatibility } from '../types';
 import { CompatibilityBadge } from '../components/shared/CompatibilityBadge';
 
-export const FoodDatabasePage = () => {
+const FoodDatabasePage: React.FC = () => {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<FoodCategory | 'all'>('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [foods, setFoods] = useState<Food[]>([]);
+  
+  useEffect(() => {
+    const loadFoods = async () => {
+      const foodData = await getFoods();
+      setFoods(foodData);
+    };
+    
+    loadFoods();
+  }, []);
 
-  const filteredFoods = foodDatabase.filter(food => 
-    food.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (selectedCategory === 'all' || food.category === selectedCategory)
-  );
+  const categories = ['all', 'vegetables', 'fruits', 'meats', 'fish', 'dairy', 'grains', 'nuts', 'legumes'];
+
+  const handleCategoryChange = (event: SelectChangeEvent) => {
+    setSelectedCategory(event.target.value);
+  };
+
+  const filteredFoods = foods.filter(food => {
+    const matchesSearch = food.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || food.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>Food Database</Typography>
-      <Box sx={{ mb: 4, display: 'flex', gap: 2 }}>
+      
+      <Box sx={{ mb: 4, display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
         <TextField
           label="Search Foods"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ flexGrow: 1 }}
+          fullWidth
         />
+        
         <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Category</InputLabel>
+          <InputLabel id="category-select-label">Category</InputLabel>
           <Select
+            labelId="category-select-label"
             value={selectedCategory}
             label="Category"
-            onChange={(e) => setSelectedCategory(e.target.value as FoodCategory | 'all')}
+            onChange={handleCategoryChange}
           >
-            <MenuItem value="all">All Categories</MenuItem>
-            {Object.values(FoodCategory).map((category) => (
-              <MenuItem key={category} value={category}>{category}</MenuItem>
+            {categories.map((category) => (
+              <MenuItem key={category} value={category}>
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
@@ -46,28 +78,28 @@ export const FoodDatabasePage = () => {
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>{food.name}</Typography>
-                <Typography color="textSecondary" gutterBottom>
-                  {food.category}
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  {food.category.charAt(0).toUpperCase() + food.category.slice(1)}
                 </Typography>
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Blood Type Compatibility:
-                  </Typography>
+                
+                <Box sx={{ mt: 2, mb: 2 }}>
                   <CompatibilityBadge 
-                    compatibility={food.bloodTypeCompatibility[user?.bloodType || 'A+']} 
+                    compatibility={food.bloodTypeCompatibility[user?.bloodType || 'A']} 
                   />
                 </Box>
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Nutritional Info (per {food.portionInfo.defaultSize}{food.portionInfo.unit}):
-                  </Typography>
-                  <Typography variant="body2">
-                    Calories: {food.nutritionalInfo.calories}<br />
-                    Protein: {food.nutritionalInfo.protein}g<br />
-                    Carbs: {food.nutritionalInfo.carbs}g<br />
-                    Fats: {food.nutritionalInfo.fats}g
-                  </Typography>
-                </Box>
+                
+                <Typography variant="body2">
+                  <strong>Calories:</strong> {food.nutritionalInfo.calories} kcal
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Protein:</strong> {food.nutritionalInfo.protein}g
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Carbs:</strong> {food.nutritionalInfo.carbs}g
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Fat:</strong> {food.nutritionalInfo.fat}g
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -75,4 +107,6 @@ export const FoodDatabasePage = () => {
       </Grid>
     </Box>
   );
-}; 
+};
+
+export default FoodDatabasePage; 

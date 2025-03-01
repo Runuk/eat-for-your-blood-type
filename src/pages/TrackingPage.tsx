@@ -1,71 +1,128 @@
-import React, { useState } from 'react';
-import { Box, Grid, Paper, Typography, TextField, Button, LinearProgress } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { 
+  Box, 
+  Typography, 
+  Paper, 
+  Button, 
+  TextField, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions,
+  LinearProgress
+} from '@mui/material';
+import { addWeightEntry, getWeightHistory, getComplianceRate, WeightEntry } from '../services/tracking';
 import { WeightChart } from '../components/tracking/WeightChart';
-import { TrackingService } from '../services/tracking';
 import { useAuth } from '../context/AuthContext';
 
-export const TrackingPage = () => {
-  const { user, updateUser } = useAuth();
+const TrackingPage: React.FC = () => {
+  const { user } = useAuth();
+  const [weightEntries, setWeightEntries] = useState<WeightEntry[]>([]);
+  const [complianceRate, setComplianceRate] = useState(0);
+  const [openDialog, setOpenDialog] = useState(false);
   const [newWeight, setNewWeight] = useState('');
+  const [error, setError] = useState('');
 
-  const handleAddWeight = () => {
-    const weight = parseFloat(newWeight);
-    if (!isNaN(weight) && user) {
-      const updatedUser = TrackingService.addWeightEntry(user, weight);
-      updateUser(updatedUser);
+  useEffect(() => {
+    const loadData = async () => {
+      if (user) {
+        const entries = await getWeightHistory(user.id);
+        setWeightEntries(entries);
+        
+        const compliance = await getComplianceRate(user.id);
+        setComplianceRate(compliance);
+      }
+    };
+    
+    loadData();
+  }, [user]);
+
+  const handleAddWeight = async () => {
+    if (!newWeight || isNaN(parseFloat(newWeight))) {
+      setError('Please enter a valid weight');
+      return;
+    }
+    
+    if (user) {
+      const weight = parseFloat(newWeight);
+      const newEntry = await addWeightEntry(user.id, weight);
+      setWeightEntries([...weightEntries, newEntry]);
+      setOpenDialog(false);
       setNewWeight('');
+      setError('');
     }
   };
 
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>Progress Tracking</Typography>
       
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>Diet Compliance</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Box sx={{ flexGrow: 1, mr: 2 }}>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={user?.metrics.complianceRate || 0}
-                  sx={{ height: 10, borderRadius: 5 }}
-                />
-              </Box>
-              <Typography variant="body2">
-                {Math.round(user?.metrics.complianceRate || 0)}%
-              </Typography>
-            </Box>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-              <Typography variant="h6">Weight Progress</Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <TextField
-                  label="Weight (kg)"
-                  type="number"
-                  size="small"
-                  value={newWeight}
-                  onChange={(e) => setNewWeight(e.target.value)}
-                />
-                <Button 
-                  variant="contained"
-                  onClick={handleAddWeight}
-                  disabled={!newWeight}
-                >
-                  Add Entry
-                </Button>
-              </Box>
-            </Box>
-            
-            <WeightChart data={user?.metrics.weightHistory || []} />
-          </Paper>
-        </Grid>
-      </Grid>
+      <Paper sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h6" gutterBottom>Diet Compliance</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <Box sx={{ width: '100%', mr: 1 }}>
+            <LinearProgress 
+              variant="determinate" 
+              value={complianceRate} 
+              sx={{ height: 10, borderRadius: 5 }}
+            />
+          </Box>
+          <Box sx={{ minWidth: 35 }}>
+            <Typography variant="body2" color="text.secondary">{`${Math.round(complianceRate)}%`}</Typography>
+          </Box>
+        </Box>
+        <Typography variant="body2" color="text.secondary">
+          {complianceRate >= 80 
+            ? 'Excellent! You\'re following your blood type diet very well.' 
+            : complianceRate >= 60 
+              ? 'Good progress! Try to increase your compliance for better results.' 
+              : 'You can improve your compliance to see better results.'}
+        </Typography>
+      </Paper>
+      
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6">Weight Progress</Typography>
+        <Button 
+          variant="contained" 
+          onClick={() => setOpenDialog(true)}
+        >
+          Add Weight Entry
+        </Button>
+      </Box>
+      
+      <Paper sx={{ p: 3, height: 300 }}>
+        {weightEntries.length > 0 ? (
+          <WeightChart data={weightEntries} />
+        ) : (
+          <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography color="text.secondary">No weight entries yet. Add your first entry!</Typography>
+          </Box>
+        )}
+      </Paper>
+      
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Add Weight Entry</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Weight (kg)"
+            type="number"
+            fullWidth
+            value={newWeight}
+            onChange={(e) => setNewWeight(e.target.value)}
+            error={!!error}
+            helperText={error}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button onClick={handleAddWeight} variant="contained">Add</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
-}; 
+};
+
+export default TrackingPage; 
