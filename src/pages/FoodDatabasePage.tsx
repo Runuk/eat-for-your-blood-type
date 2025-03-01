@@ -18,7 +18,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper
+  Paper,
+  SelectChangeEvent
 } from '@mui/material';
 import { CompatibilityBadge } from '../components/shared/CompatibilityBadge';
 import { useAuth } from '../context/AuthContext';
@@ -77,114 +78,91 @@ const FoodDatabasePage: React.FC = () => {
     setSelectedCategory('');
   };
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  TextField, 
-  Grid, 
-  Card, 
-  CardContent, 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem,
-  SelectChangeEvent
-} from '@mui/material';
-import { getFoods, Food } from '../services/foodDatabase';
-import { useAuth } from '../context/AuthContext';
-import { CompatibilityBadge } from '../components/shared/CompatibilityBadge';
-
-const FoodDatabasePage: React.FC = () => {
-  const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [foods, setFoods] = useState<Food[]>([]);
-  
-  useEffect(() => {
-    const loadFoods = async () => {
-      const foodData = await getFoods();
-      setFoods(foodData);
-    };
-    
-    loadFoods();
-  }, []);
-
-  const categories = ['all', 'vegetables', 'fruits', 'meats', 'fish', 'dairy', 'grains', 'nuts', 'legumes'];
-
   const handleCategoryChange = (event: SelectChangeEvent) => {
     setSelectedCategory(event.target.value);
+    setSearchTerm('');
   };
 
-  const filteredFoods = foods.filter(food => {
-    const matchesSearch = food.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || food.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>Food Database</Typography>
+    <Container maxWidth="lg">
+      <Typography variant="h4" component="h1" gutterBottom>
+        Food Database
+      </Typography>
       
-      <Box sx={{ mb: 4, display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
-        <TextField
-          label="Search Foods"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          fullWidth
-        />
-        
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel id="category-select-label">Category</InputLabel>
-          <Select
-            labelId="category-select-label"
-            value={selectedCategory}
-            label="Category"
-            onChange={handleCategoryChange}
-          >
-            {categories.map((category) => (
-              <MenuItem key={category} value={category}>
-                {category.charAt(0).toUpperCase() + category.slice(1)}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            label="Search Foods"
+            variant="outlined"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <FormControl fullWidth variant="outlined">
+            <InputLabel id="category-select-label">Filter by Category</InputLabel>
+            <Select
+              labelId="category-select-label"
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              label="Filter by Category"
+            >
+              <MenuItem value="">
+                <em>All Categories</em>
               </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
-
-      <Grid container spacing={3}>
-        {filteredFoods.map((food) => (
-          <Grid item xs={12} sm={6} md={4} key={food.id}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>{food.name}</Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {food.category.charAt(0).toUpperCase() + food.category.slice(1)}
-                </Typography>
-                
-                <Box sx={{ mt: 2, mb: 2 }}>
-                  <CompatibilityBadge 
-                    compatibility={food.bloodTypeCompatibility[user?.bloodType || 'A']} 
-                  />
-                </Box>
-                
-                <Typography variant="body2">
-                  <strong>Calories:</strong> {food.nutritionalInfo.calories} kcal
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Protein:</strong> {food.nutritionalInfo.protein}g
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Carbs:</strong> {food.nutritionalInfo.carbs}g
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Fat:</strong> {food.nutritionalInfo.fat}g
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+              {categories.map((category) => (
+                <MenuItem key={category} value={category}>
+                  {category}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
       </Grid>
-    </Box>
+      
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Food</TableCell>
+              <TableCell>Category</TableCell>
+              <TableCell>Compatibility</TableCell>
+              <TableCell>Calories</TableCell>
+              <TableCell>Protein (g)</TableCell>
+              <TableCell>Carbs (g)</TableCell>
+              <TableCell>Fat (g)</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredFoods.map((food) => (
+              <TableRow key={food.id}>
+                <TableCell>
+                  <Typography variant="body1">{food.name}</Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    {food.description}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip label={food.category} size="small" />
+                </TableCell>
+                <TableCell>
+                  {user && (
+                    <CompatibilityBadge 
+                      compatibility={food.bloodTypeCompatibility[user.bloodType]} 
+                    />
+                  )}
+                </TableCell>
+                <TableCell>{food.nutritionalInfo.calories}</TableCell>
+                <TableCell>{food.nutritionalInfo.protein}</TableCell>
+                <TableCell>{food.nutritionalInfo.carbs}</TableCell>
+                <TableCell>{food.nutritionalInfo.fat}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Container>
   );
 };
 
