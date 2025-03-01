@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, Grid, Paper } from '@mui/material';
 import { createMealPlan } from '../services/mealPlanner';
+import { DailyMeals, Food, MealItem } from '../types';
 
 const MealPlannerPage: React.FC = () => {
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
@@ -8,6 +9,19 @@ const MealPlannerPage: React.FC = () => {
 
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
+
+  const handleAddMeal = (day: Date, mealType: keyof DailyMeals, food: Food, portion: number, portionUnit: string) => {
+    if (!mealPlan) return;
+    
+    const newMeal: MealItem = {
+      id: Date.now().toString(),
+      foodId: food.id,
+      portionSize: portion,
+      portionUnit: portionUnit
+    };
+    
+    // ... rest of the function ...
+  };
 
   return (
     <Box sx={{ p: 3 }}>

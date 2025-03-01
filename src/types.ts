@@ -39,6 +39,7 @@ export interface MealItem {
   id: string;
   foodId: string;
   portionSize: number;
+  portionUnit?: string;
 }
 
 export interface DailyMeals {

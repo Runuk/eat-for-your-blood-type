@@ -28,7 +28,7 @@ import { searchFoods, getAllCategories } from '../../services/foodDatabase';
 interface AddFoodDialogProps {
   open: boolean;
   onClose: () => void;
-  onAddFood: (food: Food, portion: number) => void;
+  onAddFood: (food: Food, portion: number, portionUnit: string) => void;
 }
 
 export const AddFoodDialog: React.FC<AddFoodDialogProps> = ({ open, onClose, onAddFood }) => {
@@ -36,6 +36,7 @@ export const AddFoodDialog: React.FC<AddFoodDialogProps> = ({ open, onClose, onA
   const [searchResults, setSearchResults] = useState<Food[]>([]);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [portion, setPortion] = useState(1);
+  const [portionUnit, setPortionUnit] = useState('serving');
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const { user } = useAuth();
@@ -89,11 +90,16 @@ export const AddFoodDialog: React.FC<AddFoodDialogProps> = ({ open, onClose, onA
     setPortion(isNaN(value) ? 0 : value);
   };
 
+  const handlePortionUnitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPortionUnit(event.target.value);
+  };
+
   const handleAddFood = () => {
     if (selectedFood && portion > 0) {
-      onAddFood(selectedFood, portion);
+      onAddFood(selectedFood, portion, portionUnit);
       setSelectedFood(null);
       setPortion(1);
+      setPortionUnit('serving');
       setSearchTerm('');
       onClose();
     }
@@ -102,6 +108,7 @@ export const AddFoodDialog: React.FC<AddFoodDialogProps> = ({ open, onClose, onA
   const handleClose = () => {
     setSelectedFood(null);
     setPortion(1);
+    setPortionUnit('serving');
     setSearchTerm('');
     onClose();
   };
@@ -196,17 +203,27 @@ export const AddFoodDialog: React.FC<AddFoodDialogProps> = ({ open, onClose, onA
               </Typography>
             </Box>
             
-            <TextField
-              label="Portion Size"
-              type="number"
-              value={portion}
-              onChange={handlePortionChange}
-              margin="normal"
-              variant="outlined"
-              fullWidth
-              inputProps={{ min: 0.25, step: 0.25 }}
-              helperText="Enter the number of servings"
-            />
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                label="Portion Size"
+                type="number"
+                value={portion}
+                onChange={handlePortionChange}
+                margin="normal"
+                variant="outlined"
+                fullWidth
+                inputProps={{ min: 0.25, step: 0.25 }}
+              />
+              <TextField
+                label="Unit"
+                value={portionUnit}
+                onChange={handlePortionUnitChange}
+                margin="normal"
+                variant="outlined"
+                fullWidth
+                placeholder="e.g., serving, g, oz"
+              />
+            </Box>
           </Box>
         )}
       </DialogContent>

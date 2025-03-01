@@ -6,7 +6,7 @@ import { MealItemCard } from './MealItemCard';
 interface MealDayCardProps {
   day: string;
   meals: DailyMeals;
-  onAddMeal: (mealType: keyof DailyMeals) => void;
+  onAddMeal: (mealType: keyof DailyMeals, meal: MealItem) => void;
   onRemoveMeal: (mealType: keyof DailyMeals, mealIndex: number) => void;
 }
 
@@ -17,6 +17,18 @@ export const MealDayCard: React.FC<MealDayCardProps> = ({
   onRemoveMeal
 }) => {
   const mealTypes: (keyof DailyMeals)[] = ['breakfast', 'lunch', 'dinner', 'snacks'];
+
+  const handleAddFood = (food: Food, portion: number, portionUnit: string) => {
+    const newMeal: MealItem = {
+      id: Date.now().toString(),
+      foodId: food.id,
+      portionSize: portion,
+      portionUnit: portionUnit
+    };
+    
+    onAddMeal(type, newMeal);
+    setAddFoodDialogOpen(false);
+  };
 
   return (
     <Paper sx={{ p: 2 }}>
