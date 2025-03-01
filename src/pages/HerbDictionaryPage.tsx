@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Grid, Accordion, AccordionSummary, AccordionDetails, Typography, TextField, Chip } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { herbDatabase } from '../services/herbDatabase';
+import { getHerbs, Herb } from '../services/herbDatabase';
 import { useAuth } from '../context/AuthContext';
 import { CompatibilityBadge } from '../components/shared/CompatibilityBadge';
 
-export const HerbDictionaryPage = () => {
+const HerbDictionaryPage = () => {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  const [herbs, setHerbs] = useState<Herb[]>([]);
 
-  const filteredHerbs = herbDatabase.filter(herb =>
+  useEffect(() => {
+    const loadHerbs = async () => {
+      const herbData = await getHerbs();
+      setHerbs(herbData);
+    };
+    
+    loadHerbs();
+  }, []);
+
+  const filteredHerbs = herbs.filter(herb =>
     herb.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     herb.healingProperties.some(prop => prop.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -33,14 +43,14 @@ export const HerbDictionaryPage = () => {
                 <Typography variant="h6">{herb.name}</Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <Typography paragraph>{herb.shortDescription}</Typography>
+                <Typography paragraph>{herb.description}</Typography>
                 
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" gutterBottom>
                     Blood Type Compatibility
                   </Typography>
                   <CompatibilityBadge 
-                    compatibility={herb.bloodTypeCompatibility[user?.bloodType || 'A+']} 
+                    compatibility={herb.bloodTypeCompatibility[user?.bloodType || 'A']} 
                   />
                 </Box>
 
@@ -57,19 +67,19 @@ export const HerbDictionaryPage = () => {
                   ))}
                 </Box>
 
-                {herb.dosageInfo && (
+                {herb.dosage && (
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="subtitle1" gutterBottom>
                       Recommended Dosage
                     </Typography>
-                    <Typography>{herb.dosageInfo}</Typography>
+                    <Typography>{herb.dosage}</Typography>
                   </Box>
                 )}
 
                 <Typography variant="subtitle1" gutterBottom>
-                  Detailed Information
+                  Scientific Name
                 </Typography>
-                <Typography>{herb.detailedDescription}</Typography>
+                <Typography>{herb.scientificName}</Typography>
               </AccordionDetails>
             </Accordion>
           </Grid>
@@ -77,4 +87,6 @@ export const HerbDictionaryPage = () => {
       </Grid>
     </Box>
   );
-}; 
+};
+
+export default HerbDictionaryPage; 

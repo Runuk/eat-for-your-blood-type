@@ -1,55 +1,90 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, BloodType } from '../types';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+
+export type BloodType = 'A' | 'B' | 'AB' | 'O';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  bloodType: BloodType;
+}
 
 interface AuthContextType {
   user: User | null;
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, bloodType: BloodType) => Promise<void>;
   logout: () => void;
-  register: (userData: { username: string; password: string; bloodType: BloodType }) => Promise<void>;
-  updateUser: (user: User) => void;
+  updateUser: (userData: Partial<User>) => void;
+  isLoading: boolean;
+  error: string | null;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check local storage for existing session
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    // Check if user is stored in localStorage
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
+    setIsLoading(false);
   }, []);
 
-  const updateUser = (updatedUser: User) => {
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+  const login = async (email: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // In a real app, this would be an API call
+      // For demo purposes, we'll simulate a successful login
+      const mockUser: User = {
+        id: '1',
+        name: 'Demo User',
+        email,
+        bloodType: 'A'
+      };
+      
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+    } catch (err) {
+      setError('Failed to login. Please check your credentials.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const login = async (username: string, password: string) => {
-    // Mock login - in a real app, this would make an API call
-    const mockUser: User = {
-      id: '1',
-      username,
-      bloodType: BloodType.APositive,
-      isAdmin: false,
-      preferences: {
-        dietaryRestrictions: [],
-        notifications: {
-          mealPrep: true,
-          shoppingList: true,
-          mealLogging: true,
-          weeklyProgress: true
-        }
-      },
-      metrics: {
-        complianceRate: 0,
-        weightHistory: []
-      }
-    };
+  const register = async (name: string, email: string, password: string, bloodType: BloodType) => {
+    setIsLoading(true);
+    setError(null);
     
-    updateUser(mockUser);
+    try {
+      // In a real app, this would be an API call
+      // For demo purposes, we'll simulate a successful registration
+      const mockUser: User = {
+        id: Date.now().toString(),
+        name,
+        email,
+        bloodType
+      };
+      
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+    } catch (err) {
+      setError('Failed to register. Please try again.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
@@ -57,32 +92,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('user');
   };
 
-  const register = async (userData: { username: string; password: string; bloodType: BloodType }) => {
-    const newUser: User = {
-      id: Math.random().toString(),
-      username: userData.username,
-      bloodType: userData.bloodType,
-      isAdmin: false,
-      preferences: {
-        dietaryRestrictions: [],
-        notifications: {
-          mealPrep: true,
-          shoppingList: true,
-          mealLogging: true,
-          weeklyProgress: true
-        }
-      },
-      metrics: {
-        complianceRate: 0,
-        weightHistory: []
-      }
-    };
-    
-    updateUser(newUser);
+  const updateUser = (userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, updateUser }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateUser, isLoading, error }}>
       {children}
     </AuthContext.Provider>
   );
@@ -90,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
