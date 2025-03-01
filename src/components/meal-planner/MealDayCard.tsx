@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Paper, Typography, Box, Button } from '@mui/material';
-import { DailyMeals, MealItem } from '../../types';
+import { DailyMeals, MealItem, Food } from '../../types';
 import { MealItemCard } from './MealItemCard';
+import { AddFoodDialog } from '../shared/AddFoodDialog';
 
 interface MealDayCardProps {
   day: string;
@@ -16,6 +17,8 @@ export const MealDayCard: React.FC<MealDayCardProps> = ({
   onAddMeal,
   onRemoveMeal
 }) => {
+  const [addFoodDialogOpen, setAddFoodDialogOpen] = useState(false);
+  const [selectedMealType, setSelectedMealType] = useState<keyof DailyMeals>('breakfast');
   const mealTypes: (keyof DailyMeals)[] = ['breakfast', 'lunch', 'dinner', 'snacks'];
 
   const handleAddFood = (food: Food, portion: number, portionUnit: string) => {
@@ -26,8 +29,13 @@ export const MealDayCard: React.FC<MealDayCardProps> = ({
       portionUnit: portionUnit
     };
     
-    onAddMeal(type, newMeal);
+    onAddMeal(selectedMealType, newMeal);
     setAddFoodDialogOpen(false);
+  };
+
+  const openAddFoodDialog = (mealType: keyof DailyMeals) => {
+    setSelectedMealType(mealType);
+    setAddFoodDialogOpen(true);
   };
 
   return (
@@ -47,13 +55,19 @@ export const MealDayCard: React.FC<MealDayCardProps> = ({
           ))}
           <Button
             size="small"
-            onClick={() => onAddMeal(type)}
+            onClick={() => openAddFoodDialog(type)}
             sx={{ mt: 1 }}
           >
             Add {type}
           </Button>
         </Box>
       ))}
+      
+      <AddFoodDialog
+        open={addFoodDialogOpen}
+        onClose={() => setAddFoodDialogOpen(false)}
+        onAddFood={handleAddFood}
+      />
     </Paper>
   );
 }; 
