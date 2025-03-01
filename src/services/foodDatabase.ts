@@ -132,6 +132,6 @@ export const searchFoods = (query: string): Promise<Food[]> => {
 
 // Get all food categories
 export const getAllCategories = (): Promise<string[]> => {
-  const categories = [...new Set(foodDatabase.map(f => f.category))];
+  const categories = Array.from(new Set(foodDatabase.map(f => f.category)));
   return Promise.resolve(categories);
 }; 

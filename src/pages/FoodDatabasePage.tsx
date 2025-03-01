@@ -1,5 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import { 
+  Container, 
+  Typography, 
+  Grid, 
+  Card, 
+  CardContent, 
+  TextField, 
+  FormControl, 
+  InputLabel, 
+  Select, 
+  MenuItem,
+  Box,
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
+} from '@mui/material';
+import { CompatibilityBadge } from '../components/shared/CompatibilityBadge';
+import { useAuth } from '../context/AuthContext';
+import { Food } from '../types';
+import { getAllFoods, getAllCategories, getFoodsByCategory, searchFoods } from '../services/foodDatabase';
+
+const FoodDatabasePage: React.FC = () => {
+  const [foods, setFoods] = useState<Food[]>([]);
+  const [filteredFoods, setFilteredFoods] = useState<Food[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const allFoods = await getAllFoods();
+        const allCategories = await getAllCategories();
+        
+        setFoods(allFoods);
+        setFilteredFoods(allFoods);
+        setCategories(allCategories);
+      } catch (error) {
+        console.error('Error fetching food data:', error);
+      }
+    };
+    
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const filterFoods = async () => {
+      try {
+        let result: Food[] = [];
+        
+        if (searchTerm) {
+          result = await searchFoods(searchTerm);
+        } else if (selectedCategory) {
+          result = await getFoodsByCategory(selectedCategory);
+        } else {
+          result = await getAllFoods();
+        }
+        
+        setFilteredFoods(result);
+      } catch (error) {
+        console.error('Error filtering foods:', error);
+      }
+    };
+    
+    filterFoods();
+  }, [searchTerm, selectedCategory]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+    setSelectedCategory('');
+  };
+
+import React, { useState, useEffect } from 'react';
+import { 
   Box, 
   Typography, 
   TextField, 

@@ -1,26 +1,5 @@
-import { MealPlan, DailyMeals, MealItem, BloodType } from '../types';
+import { MealPlan, Meal, BloodType, MealItem, DailyMeals } from '../types';
 import { foodDatabase, getFoodById } from './foodDatabase';
-
-export interface Meal {
-  id: string;
-  name: string;
-  foodItems: string[];
-  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  date: Date;
-}
-
-export interface MealPlan {
-  id: string;
-  startDate: Date;
-  endDate: Date;
-  meals: Meal[];
-  userId: string;
-  title: string;
-  isPublic: boolean;
-  weeklyPlans: { [weekId: string]: { [dayId: string]: { [mealType: string]: MealItem[] } } };
-  ratings: number[];
-  comments: string[];
-}
 
 export const createMealPlan = (startDate: Date): MealPlan => {
   const endDate = new Date(startDate);
@@ -50,19 +29,19 @@ export const addMealToMealPlan = (mealPlan: MealPlan, meal: Meal): MealPlan => {
 export const removeMealFromMealPlan = (mealPlan: MealPlan, mealId: string): MealPlan => {
   return {
     ...mealPlan,
-    meals: mealPlan.meals.filter(meal => meal.id !== mealId)
+    meals: mealPlan.meals.filter((meal: Meal) => meal.id !== mealId)
   };
 };
 
 export const getMealsForDay = (mealPlan: MealPlan, date: Date): Meal[] => {
   const dateString = date.toDateString();
-  return mealPlan.meals.filter(meal => new Date(meal.date).toDateString() === dateString);
+  return mealPlan.meals.filter((meal: Meal) => new Date(meal.date).toDateString() === dateString);
 };
 
 export const getMealsForDayByType = (mealPlan: MealPlan, date: Date, mealType: Meal['mealType']): Meal[] => {
   const dateString = date.toDateString();
   return mealPlan.meals.filter(
-    meal => new Date(meal.date).toDateString() === dateString && meal.mealType === mealType
+    (meal: Meal) => new Date(meal.date).toDateString() === dateString && meal.mealType === mealType
   );
 };
 
@@ -123,7 +102,12 @@ export class MealPlannerService {
         snacks: []
       };
     }
-    updatedPlan.weeklyPlans[weekId][dayId][mealType].push(meal);
+    
+    // Type-safe access to mealType
+    if (mealType === 'breakfast' || mealType === 'lunch' || mealType === 'dinner' || mealType === 'snacks') {
+      updatedPlan.weeklyPlans[weekId][dayId][mealType].push(meal);
+    }
+    
     return updatedPlan;
   }
 
@@ -163,7 +147,7 @@ export class MealPlannerService {
     Object.values(plan.weeklyPlans).forEach(week => {
       Object.values(week).forEach(day => {
         Object.values(day).forEach(meals => {
-          meals.forEach(meal => {
+          meals.forEach((meal: MealItem) => {
             if (!shoppingList[meal.foodId]) {
               shoppingList[meal.foodId] = 0;
             }
