@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-export type BloodType = 'A' | 'B' | 'AB' | 'O';
+import { BloodType, BloodTypeEnum } from '../types';
 
 export interface User {
   id: string;
@@ -50,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         id: '1',
         name: 'Demo User',
         email,
-        bloodType: 'A'
+        bloodType: BloodTypeEnum.A
       };
       
       setUser(mockUser);

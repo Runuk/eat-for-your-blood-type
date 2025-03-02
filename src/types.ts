@@ -1,5 +1,21 @@
 // User types
+export enum BloodTypeEnum {
+  APositive = 'A',
+  BPositive = 'B',
+  ABPositive = 'AB',
+  OPositive = 'O'
+}
+
+// Define BloodType as a type alias
 export type BloodType = 'A' | 'B' | 'AB' | 'O';
+
+// Add a namespace with the same name to support enum-like usage
+export namespace BloodType {
+  export const APositive: BloodType = 'A';
+  export const BPositive: BloodType = 'B';
+  export const ABPositive: BloodType = 'AB';
+  export const OPositive: BloodType = 'O';
+}
 
 export interface User {
   id: string;

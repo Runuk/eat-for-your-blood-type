@@ -19,7 +19,7 @@ import { BloodType } from '../types';
 
 const LoginPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [bloodType, setBloodType] = useState<BloodType>('A');
@@ -29,20 +29,23 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (isLogin) {
-      await login(email, password);
+    try {
+      if (isLogin) {
+        await login(email, password);
+      } else {
+        await register(username, email, password, bloodType);
+      }
       navigate('/meal-planner');
-    } else {
-      await register(name, email, password, bloodType);
-      navigate('/meal-planner');
+    } catch (err) {
+      console.error('Authentication error:', err);
     }
   };
 
   return (
-    <Grid container justifyContent="center" sx={{ mt: 4 }}>
+    <Grid container justifyContent="center" alignItems="center" sx={{ minHeight: '100vh' }}>
       <Grid item xs={12} sm={8} md={6} lg={4}>
-        <Paper sx={{ p: 4 }}>
-          <Typography variant="h5" align="center" gutterBottom>
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+          <Typography variant="h4" align="center" gutterBottom>
             {isLogin ? 'Login' : 'Create Account'}
           </Typography>
           
@@ -58,8 +61,8 @@ const LoginPage: React.FC = () => {
                 label="Name"
                 fullWidth
                 margin="normal"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             )}
@@ -106,21 +109,24 @@ const LoginPage: React.FC = () => {
               type="submit"
               fullWidth
               variant="contained"
+              color="primary"
               sx={{ mt: 3, mb: 2 }}
               disabled={isLoading}
             >
               {isLogin ? 'Login' : 'Register'}
             </Button>
             
-            <Box sx={{ textAlign: 'center' }}>
-              <Link
-                component="button"
-                variant="body2"
-                onClick={() => setIsLogin(!isLogin)}
-              >
-                {isLogin ? 'Need an account? Register' : 'Already have an account? Login'}
-              </Link>
-            </Box>
+            <Grid container justifyContent="center">
+              <Grid item>
+                <Link 
+                  component="button"
+                  variant="body2"
+                  onClick={() => setIsLogin(!isLogin)}
+                >
+                  {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
+                </Link>
+              </Grid>
+            </Grid>
           </Box>
         </Paper>
       </Grid>
