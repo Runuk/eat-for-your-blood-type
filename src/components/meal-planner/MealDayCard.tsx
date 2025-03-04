@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Paper, Typography, Box, Button } from '@mui/material';
 import { DailyMeals, MealItem, Food } from '../../types';
 import { MealItemCard } from './MealItemCard';
-import { AddFoodDialog } from '../shared/AddFoodDialog';
+import AddFoodDialog from '../shared/AddFoodDialog';
 
 interface MealDayCardProps {
   day: string;
   meals: DailyMeals;
-  onAddMeal: (mealType: keyof DailyMeals, meal: MealItem) => void;
-  onRemoveMeal: (mealType: keyof DailyMeals, mealIndex: number) => void;
+  onAddMeal: (mealType: keyof DailyMeals, food: Food, portion: number, unit: string) => void;
+  onRemoveMeal: (mealType: keyof DailyMeals, mealId: string) => void;
 }
 
 export const MealDayCard: React.FC<MealDayCardProps> = ({
@@ -29,7 +29,7 @@ export const MealDayCard: React.FC<MealDayCardProps> = ({
       portionUnit: portionUnit
     };
     
-    onAddMeal(selectedMealType, newMeal);
+    onAddMeal(selectedMealType, food, portion, portionUnit);
     setAddFoodDialogOpen(false);
   };
 
@@ -50,7 +50,7 @@ export const MealDayCard: React.FC<MealDayCardProps> = ({
             <MealItemCard
               key={index}
               meal={meal}
-              onDelete={() => onRemoveMeal(type, index)}
+              onDelete={() => onRemoveMeal(type, meal.id)}
             />
           ))}
           <Button

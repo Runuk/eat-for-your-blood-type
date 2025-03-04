@@ -1,62 +1,55 @@
 import React from 'react';
 import { Chip, Tooltip } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 import { CompatibilityStatus } from '../../types';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningIcon from '@mui/icons-material/Warning';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 interface CompatibilityBadgeProps {
   compatibility: CompatibilityStatus;
 }
 
-const getColor = (compatibility: CompatibilityStatus): string => {
-  switch (compatibility) {
-    case 'beneficial':
-      return 'success';
-    case 'neutral':
-      return 'info';
-    case 'avoid':
-      return 'error';
-    default:
-      return 'default';
-  }
-};
-
-const getIcon = (compatibility: CompatibilityStatus): React.ReactElement => {
-  switch (compatibility) {
-    case 'beneficial':
-      return <CheckCircleIcon />;
-    case 'neutral':
-      return <RemoveCircleIcon />;
-    case 'avoid':
-      return <CancelIcon />;
-    default:
-      // Return a default icon instead of null to satisfy TypeScript
-      return <RemoveCircleIcon />;
-  }
-};
-
-const getTooltipText = (compatibility: CompatibilityStatus): string => {
-  switch (compatibility) {
-    case 'beneficial':
-      return 'Beneficial for your blood type';
-    case 'neutral':
-      return 'Neutral for your blood type';
-    case 'avoid':
-      return 'Avoid for your blood type';
-    default:
-      return '';
-  }
-};
-
 export const CompatibilityBadge: React.FC<CompatibilityBadgeProps> = ({ compatibility }) => {
+  const getColor = (status: CompatibilityStatus) => {
+    switch (status) {
+      case 'beneficial':
+        return 'success';
+      case 'avoid':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
+  const getIcon = (status: CompatibilityStatus) => {
+    switch (status) {
+      case 'beneficial':
+        return <CheckCircleIcon />;
+      case 'avoid':
+        return <CancelIcon />;
+      default:
+        return <WarningIcon />;
+    }
+  };
+
+  const getTooltipText = (status: CompatibilityStatus) => {
+    switch (status) {
+      case 'beneficial':
+        return 'Beneficial for your blood type';
+      case 'avoid':
+        return 'Avoid for your blood type';
+      default:
+        return 'Neutral for your blood type';
+    }
+  };
+
   return (
     <Tooltip title={getTooltipText(compatibility)}>
       <Chip
-        label={compatibility.charAt(0).toUpperCase() + compatibility.slice(1)}
-        color={getColor(compatibility) as any}
         icon={getIcon(compatibility)}
-        variant="outlined"
+        label={compatibility.charAt(0).toUpperCase() + compatibility.slice(1)}
+        color={getColor(compatibility)}
+        size="small"
       />
     </Tooltip>
   );

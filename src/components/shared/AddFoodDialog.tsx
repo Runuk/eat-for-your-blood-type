@@ -18,10 +18,10 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
-import { Food, CompatibilityStatus, Compatibility } from '../../types';
+import { Food, CompatibilityStatus } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { searchFoods } from '../../services/foodDatabase';
-import CompatibilityBadge from './CompatibilityBadge';
+import { CompatibilityBadge } from './CompatibilityBadge';
 
 interface AddFoodDialogProps {
   open: boolean;
@@ -44,12 +44,15 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
   const { user } = useAuth();
 
   useEffect(() => {
-    if (searchQuery.trim() !== '') {
-      const results = searchFoods(searchQuery);
-      setSearchResults(results);
-    } else {
-      setSearchResults([]);
-    }
+    const fetchResults = async () => {
+      if (searchQuery.trim() !== '') {
+        const results = await searchFoods(searchQuery);
+        setSearchResults(results);
+      } else {
+        setSearchResults([]);
+      }
+    };
+    fetchResults();
   }, [searchQuery]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,8 +96,8 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
     const bloodTypeKey = user.bloodType.toString() as keyof typeof food.bloodTypeCompatibility;
     const compatValue = food.bloodTypeCompatibility[bloodTypeKey];
     
-    if (compatValue === Compatibility.Beneficial) return 'beneficial';
-    if (compatValue === Compatibility.Avoid) return 'avoid';
+    if (compatValue === 'beneficial') return 'beneficial';
+    if (compatValue === 'avoid') return 'avoid';
     return 'neutral';
   };
 
@@ -169,7 +172,7 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
                   <Typography variant="body2">Calories: {selectedFood.nutritionalInfo.calories} kcal</Typography>
                   <Typography variant="body2">Protein: {selectedFood.nutritionalInfo.protein}g</Typography>
                   <Typography variant="body2">Carbs: {selectedFood.nutritionalInfo.carbs}g</Typography>
-                  <Typography variant="body2">Fat: {selectedFood.nutritionalInfo.fats}g</Typography>
+                  <Typography variant="body2">Fat: {selectedFood.nutritionalInfo.fat}g</Typography>
                 </Box>
               </Grid>
               
