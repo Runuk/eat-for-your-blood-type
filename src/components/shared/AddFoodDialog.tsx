@@ -9,234 +9,223 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
-  InputAdornment,
   Typography,
   Box,
-  Divider,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
+  Grid,
+  InputAdornment,
+  IconButton,
+  Divider
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { CompatibilityBadge } from './CompatibilityBadge';
+import CloseIcon from '@mui/icons-material/Close';
+import { Food, CompatibilityStatus, Compatibility } from '../../types';
 import { useAuth } from '../../context/AuthContext';
-import { Food } from '../../types';
-import { searchFoods, getAllCategories } from '../../services/foodDatabase';
+import { searchFoods } from '../../services/foodDatabase';
+import CompatibilityBadge from './CompatibilityBadge';
 
 interface AddFoodDialogProps {
   open: boolean;
   onClose: () => void;
-  onAddFood: (food: Food, portion: number, portionUnit: string) => void;
+  onAddFood: (food: Food, portion: number, unit: string) => void;
+  mealType: string;
 }
 
-export const AddFoodDialog: React.FC<AddFoodDialogProps> = ({ open, onClose, onAddFood }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
+  open,
+  onClose,
+  onAddFood,
+  mealType
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Food[]>([]);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
-  const [portion, setPortion] = useState(1);
-  const [portionUnit, setPortionUnit] = useState('serving');
-  const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [portion, setPortion] = useState<number>(1);
+  const [unit, setUnit] = useState<string>('serving');
   const { user } = useAuth();
 
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const cats = await getAllCategories();
-        setCategories(cats);
-      } catch (error) {
-        console.error('Error loading categories:', error);
-      }
-    };
-    
-    loadCategories();
-  }, []);
+    if (searchQuery.trim() !== '') {
+      const results = searchFoods(searchQuery);
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchQuery]);
 
-  useEffect(() => {
-    const performSearch = async () => {
-      if (searchTerm.trim().length > 0) {
-        try {
-          const results = await searchFoods(searchTerm);
-          setSearchResults(results);
-        } catch (error) {
-          console.error('Error searching foods:', error);
-          setSearchResults([]);
-        }
-      } else {
-        setSearchResults([]);
-      }
-    };
-    
-    performSearch();
-  }, [searchTerm]);
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const handleCategoryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedCategory(event.target.value as string);
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const handleSelectFood = (food: Food) => {
     setSelectedFood(food);
-    setPortion(1);
-  };
-
-  const handlePortionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(event.target.value);
-    setPortion(isNaN(value) ? 0 : value);
-  };
-
-  const handlePortionUnitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPortionUnit(event.target.value);
+    // Set default unit from food's portionInfo if available
+    if (food.portionInfo) {
+      setUnit(food.portionInfo.unit);
+      setPortion(food.portionInfo.defaultSize);
+    }
   };
 
   const handleAddFood = () => {
-    if (selectedFood && portion > 0) {
-      onAddFood(selectedFood, portion, portionUnit);
-      setSelectedFood(null);
-      setPortion(1);
-      setPortionUnit('serving');
-      setSearchTerm('');
+    if (selectedFood) {
+      onAddFood(selectedFood, portion, unit);
+      resetForm();
       onClose();
     }
   };
 
-  const handleClose = () => {
+  const resetForm = () => {
+    setSearchQuery('');
+    setSearchResults([]);
     setSelectedFood(null);
     setPortion(1);
-    setPortionUnit('serving');
-    setSearchTerm('');
+    setUnit('serving');
+  };
+
+  const handleClose = () => {
+    resetForm();
     onClose();
   };
 
+  const getCompatibilityForBloodType = (food: Food): CompatibilityStatus => {
+    if (!user || !food.bloodTypeCompatibility) return 'neutral';
+    
+    // Convert Compatibility enum value to CompatibilityStatus
+    const bloodTypeKey = user.bloodType.toString() as keyof typeof food.bloodTypeCompatibility;
+    const compatValue = food.bloodTypeCompatibility[bloodTypeKey];
+    
+    if (compatValue === Compatibility.Beneficial) return 'beneficial';
+    if (compatValue === Compatibility.Avoid) return 'avoid';
+    return 'neutral';
+  };
+
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add Food to Meal</DialogTitle>
+    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+      <DialogTitle>
+        Add Food to {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      
       <DialogContent>
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 3 }}>
           <TextField
             fullWidth
-            label="Search Foods"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            margin="normal"
+            label="Search for foods"
+            value={searchQuery}
+            onChange={handleSearch}
             variant="outlined"
             InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
+              endAdornment: (
+                <InputAdornment position="end">
                   <SearchIcon />
                 </InputAdornment>
               ),
             }}
           />
-          
-          <FormControl fullWidth margin="normal" variant="outlined">
-            <InputLabel id="category-select-label">Filter by Category</InputLabel>
-            <Select
-              labelId="category-select-label"
-              value={selectedCategory}
-              onChange={handleCategoryChange as any}
-              label="Filter by Category"
-            >
-              <MenuItem value="">
-                <em>All Categories</em>
-              </MenuItem>
-              {categories.map((category) => (
-                <MenuItem key={category} value={category}>
-                  {category}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
         </Box>
         
-        {searchResults.length > 0 ? (
-          <List>
-            {searchResults.map((food) => (
-              <React.Fragment key={food.id}>
-                <ListItem button onClick={() => handleSelectFood(food)}>
+        {!selectedFood ? (
+          <List sx={{ maxHeight: 400, overflow: 'auto' }}>
+            {searchResults.length > 0 ? (
+              searchResults.map((food) => (
+                <ListItem 
+                  key={food.id} 
+                  button 
+                  onClick={() => handleSelectFood(food)}
+                  divider
+                >
                   <ListItemText 
                     primary={food.name} 
-                    secondary={`${food.nutritionalInfo.calories} cal | ${food.nutritionalInfo.protein}g protein`} 
+                    secondary={food.category} 
                   />
-                  <ListItemSecondaryAction>
-                    {user && (
-                      <CompatibilityBadge 
-                        compatibility={food.bloodTypeCompatibility[user.bloodType]} 
-                      />
-                    )}
-                  </ListItemSecondaryAction>
+                  <CompatibilityBadge 
+                    compatibility={getCompatibilityForBloodType(food)} 
+                  />
                 </ListItem>
-                <Divider />
-              </React.Fragment>
-            ))}
+              ))
+            ) : (
+              searchQuery.trim() !== '' && (
+                <ListItem>
+                  <ListItemText primary="No foods found" />
+                </ListItem>
+              )
+            )}
           </List>
-        ) : searchTerm ? (
-          <Typography variant="body2" color="textSecondary" align="center" sx={{ my: 2 }}>
-            No foods found matching your search.
-          </Typography>
-        ) : null}
-        
-        {selectedFood && (
-          <Box sx={{ mt: 3, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-            <Typography variant="h6">{selectedFood.name}</Typography>
-            <Typography variant="body2" color="textSecondary" gutterBottom>
-              {selectedFood.category}
+        ) : (
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              {selectedFood.name}
             </Typography>
             
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Typography variant="body2">
-                Calories: {selectedFood.nutritionalInfo.calories} cal
-              </Typography>
-              <Typography variant="body2">
-                Protein: {selectedFood.nutritionalInfo.protein}g
-              </Typography>
-              <Typography variant="body2">
-                Carbs: {selectedFood.nutritionalInfo.carbs}g
-              </Typography>
-              <Typography variant="body2">
-                Fat: {selectedFood.nutritionalInfo.fat}g
-              </Typography>
-            </Box>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle1">Nutritional Information</Typography>
+                  <Typography variant="body2">Calories: {selectedFood.nutritionalInfo.calories} kcal</Typography>
+                  <Typography variant="body2">Protein: {selectedFood.nutritionalInfo.protein}g</Typography>
+                  <Typography variant="body2">Carbs: {selectedFood.nutritionalInfo.carbs}g</Typography>
+                  <Typography variant="body2">Fat: {selectedFood.nutritionalInfo.fats}g</Typography>
+                </Box>
+              </Grid>
+              
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle1">Blood Type Compatibility</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                    <Typography variant="body2" sx={{ mr: 1 }}>
+                      For your blood type ({user?.bloodType}):
+                    </Typography>
+                    <CompatibilityBadge 
+                      compatibility={getCompatibilityForBloodType(selectedFood)} 
+                    />
+                  </Box>
+                </Box>
+              </Grid>
+            </Grid>
             
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <TextField
-                label="Portion Size"
-                type="number"
-                value={portion}
-                onChange={handlePortionChange}
-                margin="normal"
-                variant="outlined"
-                fullWidth
-                inputProps={{ min: 0.25, step: 0.25 }}
-              />
-              <TextField
-                label="Unit"
-                value={portionUnit}
-                onChange={handlePortionUnitChange}
-                margin="normal"
-                variant="outlined"
-                fullWidth
-                placeholder="e.g., serving, g, oz"
-              />
-            </Box>
+            <Divider sx={{ my: 2 }} />
+            
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={6}>
+                <TextField
+                  label="Portion Size"
+                  type="number"
+                  value={portion}
+                  onChange={(e) => setPortion(Number(e.target.value))}
+                  InputProps={{ inputProps: { min: 0.1, step: 0.1 } }}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Unit"
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
           </Box>
         )}
       </DialogContent>
+      
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
         <Button 
           onClick={handleAddFood} 
           color="primary" 
-          disabled={!selectedFood || portion <= 0}
+          disabled={!selectedFood}
         >
           Add to Meal
         </Button>
       </DialogActions>
     </Dialog>
   );
-}; 
+};
+
+export default AddFoodDialog; 

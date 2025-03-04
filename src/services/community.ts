@@ -1,102 +1,73 @@
 import { MealPlan, User, Comment, Rating, SharedMealPlan } from '../types';
 
-export interface Comment {
-  id: string;
-  userId: string;
-  userName: string;
-  text: string;
-  date: Date;
-}
-
-export interface Rating {
-  userId: string;
-  rating: number;
-}
-
-export interface SharedMealPlan {
-  id: string;
-  userId: string;
-  userName: string;
-  title: string;
-  description: string;
-  mealPlanId: string;
-  dateShared: Date;
-  comments: Comment[];
-  ratings: Rating[];
-  averageRating: number;
-}
-
 // Mock data
 const sharedMealPlansData: SharedMealPlan[] = [
   {
-    id: '1',
-    userId: '2',
-    userName: 'Jane Smith',
-    title: 'Type A Weekly Plan',
-    description: 'A balanced meal plan for blood type A with vegetarian options.',
-    mealPlanId: '101',
-    dateShared: new Date('2023-02-15'),
+    id: 'smp-1',
+    userId: 'user-1',
+    userName: 'John Doe',
+    title: 'Type A Optimal Weekly Plan',
+    description: 'A balanced meal plan optimized for Type A blood types with focus on plant-based proteins.',
+    mealPlanId: 'mp-1',
+    dateShared: new Date('2023-05-15'),
     comments: [
       {
-        id: '1',
-        userId: '3',
-        userName: 'Mike Johnson',
-        text: 'Great meal plan! I lost 2kg in the first week.',
-        date: new Date('2023-02-16')
+        id: 'comment-1',
+        userId: 'user-2',
+        userName: 'Jane Smith',
+        content: 'This meal plan has been amazing for my energy levels!',
+        date: new Date('2023-05-16')
+      }
+    ],
+    ratings: [
+      {
+        userId: 'user-2',
+        rating: 5,
+        date: '2023-05-16'
       },
       {
-        id: '2',
-        userId: '4',
-        userName: 'Sarah Williams',
-        text: 'I love the breakfast options. Very tasty!',
-        date: new Date('2023-02-17')
+        userId: 'user-3',
+        rating: 4,
+        date: '2023-05-17'
       }
     ],
-    ratings: [
-      { userId: '3', rating: 5 },
-      { userId: '4', rating: 4 },
-      { userId: '5', rating: 4 }
-    ],
-    averageRating: 4.3
+    averageRating: 4.5
   },
   {
-    id: '2',
-    userId: '5',
-    userName: 'Robert Brown',
-    title: 'Type O Protein-Rich Plan',
-    description: 'High protein meal plan optimized for blood type O.',
-    mealPlanId: '102',
-    dateShared: new Date('2023-02-10'),
-    comments: [
+    id: 'smp-2',
+    userId: 'user-3',
+    userName: 'Mike Johnson',
+    title: 'Type O Performance Plan',
+    description: 'High-protein meal plan designed for Type O individuals with active lifestyles.',
+    mealPlanId: 'mp-2',
+    dateShared: new Date('2023-05-10'),
+    comments: [],
+    ratings: [
       {
-        id: '3',
-        userId: '2',
-        userName: 'Jane Smith',
-        text: 'This has been working great for my husband who is type O.',
-        date: new Date('2023-02-11')
+        userId: 'user-1',
+        rating: 4,
+        date: '2023-05-11'
       }
     ],
-    ratings: [
-      { userId: '2', rating: 5 },
-      { userId: '6', rating: 3 }
-    ],
-    averageRating: 4.0
+    averageRating: 4
   }
 ];
 
+// Get all shared meal plans
 export const getSharedMealPlans = (): Promise<SharedMealPlan[]> => {
   return Promise.resolve(sharedMealPlansData);
 };
 
+// Share a meal plan
 export const shareMealPlan = (
   userId: string, 
   userName: string,
   mealPlanId: string, 
   title: string, 
   description: string
-): Promise<SharedMealPlan> => {
+): SharedMealPlan => {
   const newSharedPlan: SharedMealPlan = {
-    id: Date.now().toString(),
+    id: `smp-${Date.now()}`,
     userId,
     userName,
     title,
@@ -109,66 +80,65 @@ export const shareMealPlan = (
   };
   
   sharedMealPlansData.push(newSharedPlan);
-  
-  return Promise.resolve(newSharedPlan);
+  return newSharedPlan;
 };
 
+// Add a comment to a shared meal plan
 export const addComment = (
-  planId: string, 
+  sharedMealPlanId: string, 
   userId: string, 
-  text: string
-): Promise<Comment> => {
-  const plan = sharedMealPlansData.find(p => p.id === planId);
-  
-  if (!plan) {
-    return Promise.reject(new Error('Meal plan not found'));
-  }
-  
-  // In a real app, we would fetch the user's name from a user service
-  const userName = userId === '1' ? 'Demo User' : 'User ' + userId;
+  userName: string, 
+  content: string
+): SharedMealPlan | null => {
+  const sharedPlan = sharedMealPlansData.find(plan => plan.id === sharedMealPlanId);
+  if (!sharedPlan) return null;
   
   const newComment: Comment = {
-    id: Date.now().toString(),
+    id: `comment-${Date.now()}`,
     userId,
     userName,
-    text,
+    content,
     date: new Date()
   };
   
-  plan.comments.push(newComment);
-  
-  return Promise.resolve(newComment);
+  sharedPlan.comments.push(newComment);
+  return sharedPlan;
 };
 
+// Rate a shared meal plan
 export const rateMealPlan = (
-  planId: string, 
+  sharedMealPlanId: string, 
   userId: string, 
   rating: number
-): Promise<number> => {
-  const plan = sharedMealPlansData.find(p => p.id === planId);
+): SharedMealPlan | null => {
+  const sharedPlan = sharedMealPlansData.find(plan => plan.id === sharedMealPlanId);
+  if (!sharedPlan) return null;
   
-  if (!plan) {
-    return Promise.reject(new Error('Meal plan not found'));
-  }
+  // Check if user has already rated this plan
+  const existingRatingIndex = sharedPlan.ratings.findIndex(r => r.userId === userId);
   
-  // Remove existing rating by this user if any
-  const existingRatingIndex = plan.ratings.findIndex(r => r.userId === userId);
-  
-  if (existingRatingIndex !== -1) {
-    plan.ratings[existingRatingIndex].rating = rating;
+  if (existingRatingIndex >= 0) {
+    // Update existing rating
+    sharedPlan.ratings[existingRatingIndex].rating = rating;
   } else {
-    plan.ratings.push({ userId, rating });
+    // Add new rating
+    sharedPlan.ratings.push({
+      userId,
+      rating,
+      date: new Date().toISOString()
+    });
   }
   
   // Recalculate average rating
-  plan.averageRating = plan.ratings.reduce((sum, r) => sum + (r.rating || 0), 0) / plan.ratings.length;
+  const sum = sharedPlan.ratings.reduce((acc, r) => acc + (r.rating || 0), 0);
+  sharedPlan.averageRating = sum / sharedPlan.ratings.length;
   
-  return Promise.resolve(plan.averageRating);
+  return sharedPlan;
 };
 
-export const getSharedMealPlanById = (id: string): Promise<SharedMealPlan | undefined> => {
-  const plan = sharedMealPlansData.find(p => p.id === id);
-  return Promise.resolve(plan);
+// Get a shared meal plan by ID
+export const getSharedMealPlanById = (id: string): SharedMealPlan | null => {
+  return sharedMealPlansData.find(plan => plan.id === id) || null;
 };
 
 export class CommunityService {
@@ -182,7 +152,7 @@ export class CommunityService {
 
   // Add a comment to a meal plan
   static addComment(plan: MealPlan, user: User, content: string): MealPlan {
-    const newComment = {
+    const newComment: Comment = {
       id: Date.now().toString(),
       userId: user.id,
       content,
@@ -197,7 +167,7 @@ export class CommunityService {
 
   // Rate a meal plan
   static ratePlan(plan: MealPlan, userId: string, score: number): MealPlan {
-    const newRating = {
+    const newRating: Rating = {
       userId,
       score,
       date: new Date().toISOString()

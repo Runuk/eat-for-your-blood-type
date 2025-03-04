@@ -51,7 +51,7 @@ interface NotificationPreferences {
   reminderTime?: string;
 }
 
-interface NutritionalInfo {
+export interface NutritionalInfo {
   calories: number;
   protein: number;
   carbs: number;
@@ -61,27 +61,29 @@ interface NutritionalInfo {
   minerals?: Record<string, number>;
 }
 
-interface PortionInfo {
+export interface PortionInfo {
   defaultSize: number;
   unit: string;
   alternativeUnits?: string[];
 }
 
-interface Rating {
-  userId: string;
-  score: number;
-  date: string;
-}
-
-interface Comment {
+export interface Comment {
   id: string;
   userId: string;
-  content: string;
-  date: string;
-  likes?: number;
+  userName?: string;
+  text?: string;
+  content?: string;
+  date: Date | string;
 }
 
-interface DailyMeals {
+export interface Rating {
+  userId: string;
+  rating?: number;
+  score?: number;
+  date?: string;
+}
+
+export interface DailyMeals {
   breakfast: MealItem[];
   lunch: MealItem[];
   dinner: MealItem[];
@@ -116,6 +118,14 @@ export interface User {
   };
 }
 
+export interface Meal {
+  id: string;
+  name: string;
+  foodItems: string[];
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  date: Date;
+}
+
 export interface MealPlan {
   id: string;
   userId: string;
@@ -128,22 +138,48 @@ export interface MealPlan {
   };
   ratings: Rating[];
   comments: Comment[];
+  startDate: Date;
+  endDate: Date;
+  meals: Meal[];
 }
 
+export interface SharedMealPlan {
+  id: string;
+  userId: string;
+  userName: string;
+  title: string;
+  description: string;
+  mealPlanId: string;
+  dateShared: Date;
+  comments: Comment[];
+  ratings: Rating[];
+  averageRating: number;
+}
+
+// Food types
 export interface Food {
   id: string;
   name: string;
-  barcode?: string;
-  category: FoodCategory;
+  category: string;
   bloodTypeCompatibility: {
-    [key in BloodType]: Compatibility;
+    "A+": Compatibility;
+    "A-": Compatibility;
+    "B+": Compatibility;
+    "B-": Compatibility;
+    "AB+": Compatibility;
+    "AB-": Compatibility;
+    "O+": Compatibility;
+    "O-": Compatibility;
   };
   nutritionalInfo: NutritionalInfo;
-  portionInfo: PortionInfo;
-  storeSection: StoreSection;
+  description?: string;
+  portionInfo?: PortionInfo;
+  storeSection?: string;
 }
 
-interface Herb {
+export type CompatibilityStatus = 'beneficial' | 'neutral' | 'avoid';
+
+export interface Herb {
   id: string;
   name: string;
   healingProperties: string[];

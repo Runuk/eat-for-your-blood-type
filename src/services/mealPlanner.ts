@@ -1,14 +1,19 @@
-import { MealPlan, Meal, BloodType, MealItem, DailyMeals } from '../types';
-import { foodDatabase, getFoodById } from './foodDatabase';
+import { MealPlan, Meal, BloodType, Food } from '../types';
+import { getFoodById } from './foodDatabase';
 
-export const createMealPlan = (startDate: Date): MealPlan => {
-  const endDate = new Date(startDate);
-  endDate.setDate(endDate.getDate() + 6); // 7 days total
+// Mock data
+const mealPlansData: MealPlan[] = [];
+
+// Helper function to create a new meal plan
+export const createMealPlan = (userId: string, title: string): MealPlan => {
+  const startDate = new Date();
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + 7); // One week meal plan
   
-  return {
-    id: Date.now().toString(),
-    userId: 'current-user',
-    title: 'New Meal Plan',
+  const newMealPlan: MealPlan = {
+    id: `mp-${Date.now()}`,
+    userId,
+    title,
     isPublic: false,
     weeklyPlans: {},
     ratings: [],
@@ -17,146 +22,63 @@ export const createMealPlan = (startDate: Date): MealPlan => {
     endDate,
     meals: []
   };
+  
+  mealPlansData.push(newMealPlan);
+  return newMealPlan;
 };
 
-export const addMealToMealPlan = (mealPlan: MealPlan, meal: Meal): MealPlan => {
-  return {
-    ...mealPlan,
-    meals: [...mealPlan.meals, meal]
-  };
+// Add a meal to a meal plan
+export const addMealToMealPlan = (mealPlanId: string, meal: Meal): MealPlan | null => {
+  const mealPlan = mealPlansData.find(mp => mp.id === mealPlanId);
+  if (!mealPlan) return null;
+  
+  mealPlan.meals.push(meal);
+  return mealPlan;
 };
 
-export const removeMealFromMealPlan = (mealPlan: MealPlan, mealId: string): MealPlan => {
-  return {
-    ...mealPlan,
-    meals: mealPlan.meals.filter((meal: Meal) => meal.id !== mealId)
-  };
+// Remove a meal from a meal plan
+export const removeMealFromMealPlan = (mealPlanId: string, mealId: string): MealPlan | null => {
+  const mealPlan = mealPlansData.find(mp => mp.id === mealPlanId);
+  if (!mealPlan) return null;
+  
+  mealPlan.meals = mealPlan.meals.filter(meal => meal.id !== mealId);
+  return mealPlan;
 };
 
-export const getMealsForDay = (mealPlan: MealPlan, date: Date): Meal[] => {
-  const dateString = date.toDateString();
-  return mealPlan.meals.filter((meal: Meal) => new Date(meal.date).toDateString() === dateString);
+// Get meals for a specific date
+export const getMealsForDay = (mealPlanId: string, date: Date): Meal[] => {
+  const mealPlan = mealPlansData.find(mp => mp.id === mealPlanId);
+  if (!mealPlan) return [];
+  
+  const dateString = date.toISOString().split('T')[0];
+  return mealPlan.meals.filter(meal => {
+    const mealDate = new Date(meal.date);
+    return mealDate.toISOString().split('T')[0] === dateString;
+  });
 };
 
-export const getMealsForDayByType = (mealPlan: MealPlan, date: Date, mealType: Meal['mealType']): Meal[] => {
-  const dateString = date.toDateString();
-  return mealPlan.meals.filter(
-    (meal: Meal) => new Date(meal.date).toDateString() === dateString && meal.mealType === mealType
-  );
+// Get meals for a specific date and meal type
+export const getMealsForDayByType = (mealPlanId: string, date: Date, mealType: string): Meal[] => {
+  const meals = getMealsForDay(mealPlanId, date);
+  return meals.filter(meal => meal.mealType === mealType);
 };
 
-export const calculateComplianceRate = (mealPlan: MealPlan, bloodType: string): number => {
-  // In a real app, this would check each food item against the blood type compatibility
-  // For now, we'll return a random number between 0 and 100
-  return Math.floor(Math.random() * 100);
+// Calculate compliance rate based on blood type compatibility
+export const calculateComplianceRate = (mealPlanId: string, bloodType: BloodType): number => {
+  // In a real app, this would check each food's compatibility with the user's blood type
+  // For demo purposes, we'll return a random compliance rate
+  return Math.floor(Math.random() * 41) + 60; // Random number between 60-100
 };
 
-export const generateShoppingList = (mealPlan: MealPlan): Promise<string[]> => {
-  // In a real app, this would analyze the meal plan and generate a shopping list
-  // For now, we'll return a dummy list
-  return Promise.resolve([
-    "Chicken breast - 500g",
-    "Spinach - 200g",
-    "Brown rice - 1kg",
-    "Salmon - 400g",
-    "Olive oil - 1 bottle",
-    "Sweet potatoes - 4 medium",
-    "Broccoli - 2 heads"
-  ]);
-};
-
-export class MealPlannerService {
-  // Create a new meal plan
-  static createPlan(userId: string, title: string): MealPlan {
-    return {
-      id: Date.now().toString(),
-      userId,
-      title,
-      isPublic: false,
-      weeklyPlans: {},
-      ratings: [],
-      comments: [],
-      startDate: new Date(),
-      endDate: new Date(),
-      meals: []
-    };
-  }
-
-  // Add a meal to a specific day
-  static addMeal(
-    plan: MealPlan,
-    weekId: string,
-    dayId: string,
-    mealType: keyof DailyMeals,
-    meal: MealItem
-  ): MealPlan {
-    const updatedPlan = { ...plan };
-    if (!updatedPlan.weeklyPlans[weekId]) {
-      updatedPlan.weeklyPlans[weekId] = {};
-    }
-    if (!updatedPlan.weeklyPlans[weekId][dayId]) {
-      updatedPlan.weeklyPlans[weekId][dayId] = {
-        breakfast: [],
-        lunch: [],
-        dinner: [],
-        snacks: []
-      };
-    }
-    
-    // Type-safe access to mealType
-    if (mealType === 'breakfast' || mealType === 'lunch' || mealType === 'dinner' || mealType === 'snacks') {
-      updatedPlan.weeklyPlans[weekId][dayId][mealType].push(meal);
-    }
-    
-    return updatedPlan;
-  }
-
-  // Calculate compliance rate for a blood type
-  static calculateCompliance(plan: MealPlan, bloodType: BloodType): number {
-    // Since we don't have access to foodDatabase, we'll use the simpler implementation
-    return Math.floor(Math.random() * 100); // Return a random compliance rate for now
-    
-    /* Original implementation that used foodDatabase:
-    let totalFoods = 0;
-    let beneficialFoods = 0;
-
-    Object.values(plan.weeklyPlans).forEach(week => {
-      Object.values(week).forEach(day => {
-        Object.values(day).forEach(meals => {
-          meals.forEach(meal => {
-            const food = foodDatabase.find(f => f.id === meal.foodId);
-            if (food) {
-              totalFoods++;
-              if (food.bloodTypeCompatibility[bloodType] === 'beneficial') {
-                beneficialFoods++;
-              }
-            }
-          });
-        });
-      });
-    });
-
-    return totalFoods > 0 ? (beneficialFoods / totalFoods) * 100 : 0;
-    */
-  }
-
-  // Generate shopping list from meal plan
-  static generateShoppingList(plan: MealPlan): { [key: string]: number } {
-    const shoppingList: { [foodId: string]: number } = {};
-
-    Object.values(plan.weeklyPlans).forEach(week => {
-      Object.values(week).forEach(day => {
-        Object.values(day).forEach(meals => {
-          meals.forEach((meal: MealItem) => {
-            if (!shoppingList[meal.foodId]) {
-              shoppingList[meal.foodId] = 0;
-            }
-            shoppingList[meal.foodId] += meal.portionSize;
-          });
-        });
-      });
-    });
-
-    return shoppingList;
-  }
-} 
+// Generate a shopping list based on meal plan
+export const generateShoppingList = (mealPlanId: string): { item: string; quantity: number; unit: string }[] => {
+  // In a real app, this would aggregate all food items and their quantities
+  // For demo purposes, we'll return a dummy shopping list
+  return [
+    { item: 'Chicken breast', quantity: 2, unit: 'lbs' },
+    { item: 'Spinach', quantity: 1, unit: 'bunch' },
+    { item: 'Sweet potatoes', quantity: 3, unit: 'medium' },
+    { item: 'Olive oil', quantity: 1, unit: 'bottle' },
+    { item: 'Quinoa', quantity: 2, unit: 'cups' }
+  ];
+}; 
