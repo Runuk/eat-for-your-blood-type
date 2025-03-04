@@ -21,15 +21,8 @@ export const MealDayCard: React.FC<MealDayCardProps> = ({
   const [selectedMealType, setSelectedMealType] = useState<keyof DailyMeals>('breakfast');
   const mealTypes: (keyof DailyMeals)[] = ['breakfast', 'lunch', 'dinner', 'snacks'];
 
-  const handleAddFood = (food: Food, portion: number, portionUnit: string) => {
-    const newMeal: MealItem = {
-      id: Date.now().toString(),
-      foodId: food.id,
-      portionSize: portion,
-      portionUnit: portionUnit
-    };
-    
-    onAddMeal(selectedMealType, food, portion, portionUnit);
+  const handleAddFood = (food: Food, portion: number, unit: string) => {
+    onAddMeal(selectedMealType, food, portion, unit);
     setAddFoodDialogOpen(false);
   };
 
@@ -67,6 +60,7 @@ export const MealDayCard: React.FC<MealDayCardProps> = ({
         open={addFoodDialogOpen}
         onClose={() => setAddFoodDialogOpen(false)}
         onAddFood={handleAddFood}
+        mealType={selectedMealType}
       />
     </Paper>
   );
