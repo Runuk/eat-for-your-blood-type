@@ -62,9 +62,9 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
   const handleSelectFood = (food: Food) => {
     setSelectedFood(food);
     // Set default unit from food's portionInfo if available
-    if (food.portionInfo) {
+    if (food.portionInfo?.unit) {
       setUnit(food.portionInfo.unit);
-      setPortion(food.portionInfo.defaultSize);
+      setPortion(food.portionInfo.defaultSize || 1);
     }
   };
 
