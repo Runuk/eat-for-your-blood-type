@@ -171,9 +171,17 @@ export interface Food {
     "O+": Compatibility;
     "O-": Compatibility;
   };
-  nutritionalInfo: NutritionalInfo;
+  nutritionalInfo: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
   description?: string;
-  portionInfo?: PortionInfo;
+  portionInfo?: {
+    unit: string;
+    defaultSize: number;
+  };
   storeSection?: string;
 }
 
