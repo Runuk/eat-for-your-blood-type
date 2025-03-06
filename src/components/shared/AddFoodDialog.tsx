@@ -34,6 +34,14 @@ interface AddFoodDialogProps {
   mealType: string;
 }
 
+interface FoodWithPortionInfo extends Food {
+  portionInfo?: {
+    unit: string;
+    defaultSize?: number;
+    alternativeUnits?: string[];
+  };
+}
+
 const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
   open,
   onClose,
@@ -41,8 +49,8 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
   mealType
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Food[]>([]);
-  const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+  const [searchResults, setSearchResults] = useState<FoodWithPortionInfo[]>([]);
+  const [selectedFood, setSelectedFood] = useState<FoodWithPortionInfo | null>(null);
   const [portion, setPortion] = useState(1);
   const [unit, setUnit] = useState('serving');
   const { user } = useAuth();
@@ -63,7 +71,7 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
     setSearchQuery(e.target.value);
   };
 
-  const handleSelectFood = (food: Food) => {
+  const handleSelectFood = (food: FoodWithPortionInfo) => {
     setSelectedFood(food);
     if (food.portionInfo?.unit) {
       setUnit(food.portionInfo.unit);
