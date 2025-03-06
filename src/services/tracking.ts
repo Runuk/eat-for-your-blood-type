@@ -1,12 +1,5 @@
 import { User, WeightEntry } from '../types';
 
-export interface WeightEntry {
-  id: string;
-  userId: string;
-  weight: number;
-  date: Date;
-}
-
 interface UserTracking {
   userId: string;
   weightEntries: WeightEntry[];
@@ -18,11 +11,11 @@ const trackingData: UserTracking[] = [
   {
     userId: '1',
     weightEntries: [
-      { id: '1', userId: '1', weight: 75, date: new Date('2023-01-01') },
-      { id: '2', userId: '1', weight: 74.5, date: new Date('2023-01-08') },
-      { id: '3', userId: '1', weight: 73.8, date: new Date('2023-01-15') },
-      { id: '4', userId: '1', weight: 73.2, date: new Date('2023-01-22') },
-      { id: '5', userId: '1', weight: 72.5, date: new Date('2023-01-29') }
+      { id: '1', userId: '1', weight: 75, date: '2023-01-01' },
+      { id: '2', userId: '1', weight: 74.5, date: '2023-01-08' },
+      { id: '3', userId: '1', weight: 73.8, date: '2023-01-15' },
+      { id: '4', userId: '1', weight: 73.2, date: '2023-01-22' },
+      { id: '5', userId: '1', weight: 72.5, date: '2023-01-29' }
     ],
     complianceRate: 78
   }
@@ -36,7 +29,6 @@ const getUserTracking = (userId: string): UserTracking => {
     return userTracking;
   }
   
-  // Create new tracking for user if not found
   const newTracking: UserTracking = {
     userId,
     weightEntries: [],
@@ -47,48 +39,40 @@ const getUserTracking = (userId: string): UserTracking => {
   return newTracking;
 };
 
-export const addWeightEntry = (userId: string, weight: number): Promise<WeightEntry> => {
-  const userTracking = getUserTracking(userId);
-  
+export const addWeightEntry = async (userId: string, weight: number): Promise<WeightEntry> => {
   const newEntry: WeightEntry = {
-    id: Date.now().toString(),
+    id: Math.random().toString(36).substr(2, 9),
     userId,
-    weight,
-    date: new Date()
+    date: new Date().toISOString(),
+    weight
   };
-  
-  userTracking.weightEntries.push(newEntry);
-  
-  return Promise.resolve(newEntry);
-};
-
-export const getWeightHistory = (userId: string): Promise<WeightEntry[]> => {
   const userTracking = getUserTracking(userId);
-  
-  // Sort by date, newest first
-  const sortedEntries = [...userTracking.weightEntries].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
-  
-  return Promise.resolve(sortedEntries);
+  userTracking.weightEntries.push(newEntry);
+  return newEntry;
 };
 
-export const updateComplianceRate = (userId: string, rate: number): Promise<number> => {
+export const getWeightHistory = async (userId: string): Promise<WeightEntry[]> => {
+  const userTracking = getUserTracking(userId);
+  return userTracking.weightEntries;
+};
+
+export const updateComplianceRate = async (userId: string, rate: number): Promise<number> => {
   const userTracking = getUserTracking(userId);
   userTracking.complianceRate = rate;
-  
-  return Promise.resolve(rate);
+  return rate;
 };
 
-export const getComplianceRate = (userId: string): Promise<number> => {
+export const getComplianceRate = async (userId: string): Promise<number> => {
   const userTracking = getUserTracking(userId);
-  return Promise.resolve(userTracking.complianceRate);
+  return userTracking.complianceRate;
 };
 
 export class TrackingService {
   // Add a new weight entry
   static addWeightEntry(user: User, weight: number): User {
     const newEntry: WeightEntry = {
+      id: Math.random().toString(36).substr(2, 9),
+      userId: user.id,
       date: new Date().toISOString(),
       weight
     };

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Box, Typography, Grid, Paper } from '@mui/material';
 import { createMealPlan } from '../services/mealPlanner';
 import { DailyMeals, Food, MealItem } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 const MealPlannerPage: React.FC = () => {
+  const { user } = useAuth();
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
-  const [mealPlan, setMealPlan] = useState(createMealPlan(new Date()));
+  const [mealPlan, setMealPlan] = useState(createMealPlan(user?.id || '', currentWeek.toISOString()));
 
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];

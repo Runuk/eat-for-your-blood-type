@@ -11,9 +11,10 @@ import {
   DialogActions,
   LinearProgress
 } from '@mui/material';
-import { addWeightEntry, getWeightHistory, getComplianceRate, WeightEntry } from '../services/tracking';
+import { addWeightEntry, getWeightHistory, getComplianceRate } from '../services/tracking';
 import { WeightChart } from '../components/tracking/WeightChart';
 import { useAuth } from '../context/AuthContext';
+import { WeightEntry } from '../types';
 
 const TrackingPage: React.FC = () => {
   const { user } = useAuth();

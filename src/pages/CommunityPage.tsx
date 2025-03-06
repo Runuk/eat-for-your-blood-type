@@ -22,6 +22,7 @@ import {
   SharedMealPlan 
 } from '../services/community';
 import { useAuth } from '../context/AuthContext';
+import { Comment } from '../types';
 
 const CommunityPage: React.FC = () => {
   const { user } = useAuth();
@@ -51,33 +52,30 @@ const CommunityPage: React.FC = () => {
   }, []);
 
   const handleAddComment = async (planId: string) => {
-    if (!user || !comments[planId].trim()) return;
+    if (!user || !comments[planId]?.trim()) return;
     
-    await addComment(planId, user.id, comments[planId]);
-    
-    // Update the shared plans with the new comment
-    setSharedPlans(prevPlans => 
-      prevPlans.map(plan => {
-        if (plan.id === planId) {
-          return {
-            ...plan,
-            comments: [
-              ...plan.comments,
-              {
-                id: Date.now().toString(),
-                userId: user.id,
-                userName: user.name,
-                text: comments[planId],
-                date: new Date()
-              }
-            ]
-          };
-        }
-        return plan;
-      })
+    const newComment = await addComment(
+      planId,
+      user.id,
+      comments[planId],
+      user.userName
     );
     
-    // Clear the comment input
+    // Update the shared plans with the new comment
+    setSharedPlans(prevPlans =>
+      prevPlans.map(plan =>
+        plan.id === planId
+          ? {
+              ...plan,
+              comments: [
+                ...plan.comments,
+                newComment
+              ]
+            }
+          : plan
+      )
+    );
+    
     setComments(prev => ({ ...prev, [planId]: '' }));
   };
 
@@ -163,23 +161,23 @@ const CommunityPage: React.FC = () => {
                 </Typography>
                 
                 <List sx={{ maxHeight: 200, overflow: 'auto' }}>
-                  {plan.comments.map((comment) => (
+                  {plan.comments.map((comment: Comment) => (
                     <ListItem key={comment.id} alignItems="flex-start" sx={{ px: 0 }}>
                       <Avatar sx={{ mr: 2, width: 32, height: 32 }}>
-                        {comment.userName.charAt(0)}
+                        {comment.userName?.charAt(0) || '?'}
                       </Avatar>
                       <ListItemText
                         primary={
                           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                             <Typography variant="subtitle2">
-                              {comment.userName}
+                              {comment.userName || 'Anonymous'}
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
                               {new Date(comment.date).toLocaleDateString()}
                             </Typography>
                           </Box>
                         }
-                        secondary={comment.text}
+                        secondary={comment.content}
                       />
                     </ListItem>
                   ))}

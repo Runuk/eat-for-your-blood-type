@@ -1,56 +1,127 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent
+} from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { BloodType } from '../../types';
 
-export const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    bloodType: BloodType.APositive
-  });
+const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    name: '',
+    bloodType: BloodType.APositive
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await register(formData);
+    await register(
+      formData.email,
+      formData.password,
+      formData.name,
+      formData.bloodType
+    );
     navigate('/meal-planner');
   };
 
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent
+  ) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name as string]: value
+    }));
+  };
+
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 400, mx: 'auto', mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Register</Typography>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        maxWidth: 400,
+        mx: 'auto',
+        mt: 4,
+        p: 3,
+        boxShadow: 3,
+        borderRadius: 1
+      }}
+    >
+      <Typography variant="h5" gutterBottom>
+        Register
+      </Typography>
+
       <TextField
         fullWidth
-        label="Username"
         margin="normal"
-        value={formData.username}
-        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+        label="Name"
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        required
       />
+
       <TextField
         fullWidth
-        type="password"
+        margin="normal"
+        label="Email"
+        name="email"
+        type="email"
+        value={formData.email}
+        onChange={handleChange}
+        required
+      />
+
+      <TextField
+        fullWidth
+        margin="normal"
         label="Password"
-        margin="normal"
+        name="password"
+        type="password"
         value={formData.password}
-        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+        onChange={handleChange}
+        required
       />
+
       <FormControl fullWidth margin="normal">
         <InputLabel>Blood Type</InputLabel>
         <Select
+          name="bloodType"
           value={formData.bloodType}
-          onChange={(e) => setFormData({ ...formData, bloodType: e.target.value as BloodType })}
+          label="Blood Type"
+          onChange={handleChange}
+          required
         >
           {Object.values(BloodType).map((type) => (
-            <MenuItem key={type} value={type}>{type}</MenuItem>
+            <MenuItem key={type} value={type}>
+              {type}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
-      <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+
+      <Button
+        type="submit"
+        fullWidth
+        variant="contained"
+        color="primary"
+        sx={{ mt: 3 }}
+      >
         Register
       </Button>
     </Box>
   );
-}; 
+};
+
+export default RegisterPage; 

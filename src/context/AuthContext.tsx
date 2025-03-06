@@ -1,17 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { BloodType, BloodTypeEnum } from '../types';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  bloodType: BloodType;
-}
+import { User, BloodType } from '../types';
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, bloodType: BloodType) => Promise<void>;
+  register: (email: string, password: string, name: string, bloodType: BloodType) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   isLoading: boolean;
@@ -38,49 +31,71 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
-    setError(null);
-    
     try {
-      // In a real app, this would be an API call
-      // For demo purposes, we'll simulate a successful login
+      // Mock successful login
       const mockUser: User = {
         id: '1',
-        name: 'Demo User',
-        email,
-        bloodType: BloodTypeEnum.A
+        username: 'John Doe',
+        email: email,
+        bloodType: BloodType.APositive,
+        isAdmin: false,
+        preferences: {
+          dietaryRestrictions: [],
+          notifications: {
+            mealPrep: true,
+            shoppingList: true,
+            mealLogging: true,
+            weeklyProgress: true
+          }
+        },
+        metrics: {
+          complianceRate: 0,
+          weightHistory: []
+        }
       };
-      
       setUser(mockUser);
       localStorage.setItem('user', JSON.stringify(mockUser));
+      setError(null);
     } catch (err) {
-      setError('Failed to login. Please check your credentials.');
+      setError('Failed to login');
       console.error(err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (name: string, email: string, password: string, bloodType: BloodType) => {
+  const register = async (email: string, password: string, name: string, bloodType: BloodType) => {
     setIsLoading(true);
     setError(null);
-    
     try {
-      // In a real app, this would be an API call
-      // For demo purposes, we'll simulate a successful registration
+      // Mock registration - in real app, this would call an API
       const mockUser: User = {
-        id: Date.now().toString(),
-        name,
+        id: Math.random().toString(36).substr(2, 9),
+        username: name,
         email,
-        bloodType
+        bloodType,
+        isAdmin: false,
+        preferences: {
+          dietaryRestrictions: [],
+          notifications: {
+            mealPrep: true,
+            shoppingList: true,
+            mealLogging: true,
+            weeklyProgress: true
+          }
+        },
+        metrics: {
+          complianceRate: 0,
+          weightHistory: []
+        }
       };
-      
+
       setUser(mockUser);
       localStorage.setItem('user', JSON.stringify(mockUser));
     } catch (err) {
-      setError('Failed to register. Please try again.');
-      console.error(err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +103,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
   };
 
   const updateUser = (userData: Partial<User>) => {

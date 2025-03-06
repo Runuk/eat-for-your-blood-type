@@ -14,7 +14,11 @@ import {
   Grid,
   InputAdornment,
   IconButton,
-  Divider
+  Divider,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
@@ -39,8 +43,8 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Food[]>([]);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
-  const [portion, setPortion] = useState<number>(1);
-  const [unit, setUnit] = useState<string>('serving');
+  const [portion, setPortion] = useState(1);
+  const [unit, setUnit] = useState('serving');
   const { user } = useAuth();
 
   useEffect(() => {
@@ -61,32 +65,23 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
 
   const handleSelectFood = (food: Food) => {
     setSelectedFood(food);
-    // Set default unit from food's portionInfo if available
     if (food.portionInfo?.unit) {
       setUnit(food.portionInfo.unit);
       setPortion(food.portionInfo.defaultSize || 1);
+    } else {
+      setUnit('serving');
+      setPortion(1);
     }
   };
 
   const handleAddFood = () => {
     if (selectedFood) {
       onAddFood(selectedFood, portion, unit);
-      resetForm();
       onClose();
+      setSelectedFood(null);
+      setPortion(1);
+      setUnit('serving');
     }
-  };
-
-  const resetForm = () => {
-    setSearchQuery('');
-    setSearchResults([]);
-    setSelectedFood(null);
-    setPortion(1);
-    setUnit('serving');
-  };
-
-  const handleClose = () => {
-    resetForm();
-    onClose();
   };
 
   const getCompatibilityForBloodType = (food: Food): CompatibilityStatus => {
@@ -102,12 +97,12 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
         Add Food to {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
         <IconButton
           aria-label="close"
-          onClick={handleClose}
+          onClick={onClose}
           sx={{ position: 'absolute', right: 8, top: 8 }}
         >
           <CloseIcon />
@@ -199,18 +194,29 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
                   label="Portion Size"
                   type="number"
                   value={portion}
-                  onChange={(e) => setPortion(Number(e.target.value))}
-                  InputProps={{ inputProps: { min: 0.1, step: 0.1 } }}
-                  fullWidth
+                  onChange={(e) => setPortion(parseFloat(e.target.value) || 0)}
+                  inputProps={{ min: 0, step: 0.5 }}
+                  sx={{ width: 100 }}
                 />
               </Grid>
               <Grid item xs={6}>
-                <TextField
-                  label="Unit"
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                  fullWidth
-                />
+                <FormControl sx={{ minWidth: 120 }}>
+                  <InputLabel>Unit</InputLabel>
+                  <Select
+                    value={unit}
+                    label="Unit"
+                    onChange={(e) => setUnit(e.target.value)}
+                  >
+                    <MenuItem value={selectedFood.portionInfo?.unit || 'serving'}>
+                      {selectedFood.portionInfo?.unit || 'serving'}
+                    </MenuItem>
+                    {selectedFood.portionInfo?.alternativeUnits?.map((altUnit) => (
+                      <MenuItem key={altUnit} value={altUnit}>
+                        {altUnit}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
           </Box>
@@ -218,7 +224,7 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
       </DialogContent>
       
       <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={onClose}>Cancel</Button>
         <Button 
           onClick={handleAddFood} 
           color="primary" 

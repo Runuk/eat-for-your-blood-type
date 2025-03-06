@@ -39,8 +39,10 @@ export enum StoreSection {
 
 // Supporting Interfaces
 export interface WeightEntry {
+  id: string;
   date: string;
   weight: number;
+  userId: string;
 }
 
 interface NotificationPreferences {
@@ -70,10 +72,9 @@ export interface PortionInfo {
 export interface Comment {
   id: string;
   userId: string;
-  userName?: string;
-  text?: string;
-  content?: string;
-  date: Date | string;
+  userName: string;
+  content: string;
+  date: Date;
 }
 
 export interface Rating {
@@ -100,17 +101,13 @@ export interface MealItem {
 // Core type definitions
 export interface User {
   id: string;
-  username: string;
+  userName: string;
+  email: string;
   bloodType: BloodType;
   isAdmin: boolean;
   preferences: {
     dietaryRestrictions: string[];
-    notifications: {
-      mealPrep: boolean;
-      shoppingList: boolean;
-      mealLogging: boolean;
-      weeklyProgress: boolean;
-    };
+    notifications: NotificationPreferences;
   };
   metrics: {
     complianceRate: number;
@@ -145,14 +142,16 @@ export interface MealPlan {
 
 export interface SharedMealPlan {
   id: string;
-  userId: string;
-  userName: string;
   title: string;
   description: string;
-  mealPlanId: string;
+  userId: string;
+  userName: string;
   dateShared: Date;
   comments: Comment[];
-  ratings: Rating[];
+  ratings: Array<{
+    userId: string;
+    rating: number;
+  }>;
   averageRating: number;
 }
 
@@ -162,14 +161,7 @@ export interface Food {
   name: string;
   category: string;
   bloodTypeCompatibility: {
-    "A+": Compatibility;
-    "A-": Compatibility;
-    "B+": Compatibility;
-    "B-": Compatibility;
-    "AB+": Compatibility;
-    "AB-": Compatibility;
-    "O+": Compatibility;
-    "O-": Compatibility;
+    [key in BloodType]: Compatibility;
   };
   nutritionalInfo: NutritionalInfo;
   description?: string;

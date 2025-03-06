@@ -54,8 +54,9 @@ const sharedMealPlansData: SharedMealPlan[] = [
 ];
 
 // Get all shared meal plans
-export const getSharedMealPlans = (): Promise<SharedMealPlan[]> => {
-  return Promise.resolve(sharedMealPlansData);
+export const getSharedMealPlans = async (): Promise<SharedMealPlan[]> => {
+  // Mock implementation
+  return [];
 };
 
 // Share a meal plan
@@ -84,61 +85,37 @@ export const shareMealPlan = (
 };
 
 // Add a comment to a shared meal plan
-export const addComment = (
-  sharedMealPlanId: string, 
-  userId: string, 
-  userName: string, 
-  content: string
-): SharedMealPlan | null => {
-  const sharedPlan = sharedMealPlansData.find(plan => plan.id === sharedMealPlanId);
-  if (!sharedPlan) return null;
-  
-  const newComment: Comment = {
-    id: `comment-${Date.now()}`,
+export const addComment = async (
+  planId: string,
+  userId: string,
+  content: string,
+  username: string
+): Promise<Comment> => {
+  return {
+    id: Math.random().toString(36).substr(2, 9),
     userId,
-    userName,
     content,
+    userName: username,
     date: new Date()
-  };
-  
-  sharedPlan.comments.push(newComment);
-  return sharedPlan;
+  } as Comment & { userName: string };
 };
 
 // Rate a shared meal plan
-export const rateMealPlan = (
-  sharedMealPlanId: string, 
-  userId: string, 
+export const rateMealPlan = async (
+  planId: string,
+  userId: string,
   rating: number
-): SharedMealPlan | null => {
-  const sharedPlan = sharedMealPlansData.find(plan => plan.id === sharedMealPlanId);
-  if (!sharedPlan) return null;
-  
-  // Check if user has already rated this plan
-  const existingRatingIndex = sharedPlan.ratings.findIndex(r => r.userId === userId);
-  
-  if (existingRatingIndex >= 0) {
-    // Update existing rating
-    sharedPlan.ratings[existingRatingIndex].rating = rating;
-  } else {
-    // Add new rating
-    sharedPlan.ratings.push({
-      userId,
-      rating,
-      date: new Date().toISOString()
-    });
-  }
-  
-  // Recalculate average rating
-  const sum = sharedPlan.ratings.reduce((acc, r) => acc + (r.rating || 0), 0);
-  sharedPlan.averageRating = sum / sharedPlan.ratings.length;
-  
-  return sharedPlan;
+): Promise<Rating> => {
+  return {
+    userId,
+    rating,
+    date: new Date().toISOString()
+  };
 };
 
 // Get a shared meal plan by ID
-export const getSharedMealPlanById = (id: string): SharedMealPlan | null => {
-  return sharedMealPlansData.find(plan => plan.id === id) || null;
+export const getSharedMealPlanById = async (id: string): Promise<SharedMealPlan | null> => {
+  return null;
 };
 
 export class CommunityService {
