@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Mock successful login
       const mockUser: User = {
         id: '1',
-        username: 'John Doe',
+        userName: 'John Doe',
         email: email,
         bloodType: BloodType.APositive,
         isAdmin: false,
