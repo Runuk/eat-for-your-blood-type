@@ -72,7 +72,7 @@ export interface PortionInfo {
 export interface Comment {
   id: string;
   userId: string;
-  userName: string;
+  username: string;
   content: string;
   date: Date;
 }
@@ -101,7 +101,7 @@ export interface MealItem {
 // Core type definitions
 export interface User {
   id: string;
-  userName: string;
+  username: string;
   email: string;
   bloodType: BloodType;
   isAdmin: boolean;
@@ -145,7 +145,7 @@ export interface SharedMealPlan {
   title: string;
   description: string;
   userId: string;
-  userName: string;
+  username: string;
   dateShared: Date;
   comments: Comment[];
   ratings: Array<{
