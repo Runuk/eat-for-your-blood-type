@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
-import { Food, CompatibilityStatus, PortionInfo } from '../../types';
+import { Food, CompatibilityStatus, PortionInfo } from '../../types/index';
 import { useAuth } from '../../context/AuthContext';
 import { searchFoods } from '../../services/foodDatabase';
 import { CompatibilityBadge } from './CompatibilityBadge';
