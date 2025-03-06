@@ -165,7 +165,11 @@ export interface Food {
   };
   nutritionalInfo: NutritionalInfo;
   description?: string;
-  portionInfo?: PortionInfo;
+  portionInfo?: {
+    unit: string;
+    defaultSize?: number;
+    alternativeUnits?: string[];
+  };
   storeSection?: string;
 }
 
