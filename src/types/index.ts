@@ -64,8 +64,8 @@ export interface NutritionalInfo {
 }
 
 export interface PortionInfo {
-  defaultSize: number;
   unit: string;
+  defaultSize?: number;
   alternativeUnits?: string[];
 }
 
