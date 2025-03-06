@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
-import { Food, CompatibilityStatus, PortionInfo } from '../../types/index';
+import { Food, CompatibilityStatus } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { searchFoods } from '../../services/foodDatabase';
 import { CompatibilityBadge } from './CompatibilityBadge';
@@ -63,7 +63,7 @@ const AddFoodDialog: React.FC<AddFoodDialogProps> = ({
     setSearchQuery(e.target.value);
   };
 
-  const handleSelectFood = (food: Food & { portionInfo?: PortionInfo }) => {
+  const handleSelectFood = (food: Food) => {
     setSelectedFood(food);
     if (food.portionInfo?.unit) {
       setUnit(food.portionInfo.unit);
