@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, BloodType } from '../types';
+import { User, BloodType, NotificationPreferences } from '../types';
+
+// Ensure we're using the correct type
+type AuthUser = User;
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string, bloodType: BloodType) => Promise<void>;
   logout: () => void;
-  updateUser: (userData: Partial<User>) => void;
+  updateUser: (userData: Partial<AuthUser>) => void;
   isLoading: boolean;
   error: string | null;
 }
@@ -18,7 +21,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,9 +37,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     try {
-      const mockUser: User = {
+      const mockUser: AuthUser = {
         id: '1',
-        username: 'John Doe',
+        userName: 'John Doe',
         email: email,
         bloodType: BloodType.APositive,
         isAdmin: false,
@@ -69,9 +72,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const mockUser: User = {
+      const mockUser: AuthUser = {
         id: Math.random().toString(36).substr(2, 9),
-        username: name,
+        userName: name,
         email,
         bloodType,
         isAdmin: false,
@@ -104,7 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
   };
 
-  const updateUser = (userData: Partial<User>) => {
+  const updateUser = (userData: Partial<AuthUser>) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);

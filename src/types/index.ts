@@ -45,7 +45,7 @@ export interface WeightEntry {
   userId: string;
 }
 
-interface NotificationPreferences {
+export interface NotificationPreferences {
   mealPrep: boolean;
   shoppingList: boolean;
   mealLogging: boolean;
@@ -101,7 +101,7 @@ export interface MealItem {
 // Core type definitions
 export interface User {
   id: string;
-  username: string;
+  userName: string;
   email: string;
   bloodType: BloodType;
   isAdmin: boolean;
