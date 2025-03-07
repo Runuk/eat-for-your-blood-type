@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { BaseUser, BloodType } from '../types';
+import { User, BloodType } from '../types';
 
 // Ensure we're using the correct type
-type AuthUser = BaseUser;
+type AuthUser = User;
 
 interface AuthContextType {
   user: AuthUser | null;
