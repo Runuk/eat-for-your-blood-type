@@ -99,7 +99,7 @@ export interface MealItem {
 }
 
 // Core type definitions
-export type UserData = {
+export interface User {
   id: string;
   username: string;
   email: string;
@@ -113,9 +113,7 @@ export type UserData = {
     complianceRate: number;
     weightHistory: WeightEntry[];
   };
-};
-
-export interface User extends UserData {}
+}
 
 export interface Meal {
   id: string;
