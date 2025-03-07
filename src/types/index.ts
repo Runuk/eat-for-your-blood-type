@@ -101,7 +101,7 @@ export interface MealItem {
 // Core type definitions
 export interface User {
   id: string;
-  username: string;
+  username: string; // user's display name
   email: string;
   bloodType: BloodType;
   isAdmin: boolean;
