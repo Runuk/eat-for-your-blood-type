@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, BloodType } from '../types';
+import { BaseUser, BloodType } from '../types';
 
 // Ensure we're using the correct type
-type AuthUser = User;
+type AuthUser = BaseUser;
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const mockUser: AuthUser = {
         id: '1',
-        username: 'John Doe',
+        userName: 'John Doe',
         email: email,
         bloodType: BloodType.APositive,
         isAdmin: false,
@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const mockUser: AuthUser = {
         id: Math.random().toString(36).substr(2, 9),
-        username: name,
+        userName: name,
         email,
         bloodType,
         isAdmin: false,
