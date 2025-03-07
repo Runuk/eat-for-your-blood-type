@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, BloodType } from '../types';
+import { User, BloodType, UserData } from '../types';
 
 interface AuthContextType {
   user: User | null;
@@ -34,8 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     try {
-      // Mock successful login
-      const mockUser: User = {
+      const mockUser: UserData = {
         id: '1',
         username: 'John Doe',
         email: email,
@@ -70,8 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     setError(null);
     try {
-      // Mock registration - in real app, this would call an API
-      const mockUser: User = {
+      const mockUser: UserData = {
         id: Math.random().toString(36).substr(2, 9),
         username: name,
         email,
@@ -103,6 +101,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('user');
   };
 
   const updateUser = (userData: Partial<User>) => {
