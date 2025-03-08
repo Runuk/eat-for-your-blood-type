@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, BloodType } from '../types';
+import type { User } from '../types';
+import { BloodType } from '../types';
 
 // Ensure we're using the correct type
 type AuthUser = User;

@@ -99,28 +99,25 @@ export interface MealItem {
 }
 
 // Core type definitions
-export interface User {
-  /** Unique identifier for the user */
+export type UserPreferences = {
+  dietaryRestrictions: string[];
+  notifications: NotificationPreferences;
+};
+
+export type UserMetrics = {
+  complianceRate: number;
+  weightHistory: WeightEntry[];
+};
+
+export type User = {
   id: string;
-  /** User's display name */
   username: string;
-  /** User's email address */
   email: string;
-  /** User's blood type */
   bloodType: BloodType;
-  /** Whether the user has admin privileges */
   isAdmin: boolean;
-  /** User preferences */
-  preferences: {
-    dietaryRestrictions: string[];
-    notifications: NotificationPreferences;
-  };
-  /** User metrics */
-  metrics: {
-    complianceRate: number;
-    weightHistory: WeightEntry[];
-  };
-}
+  preferences: UserPreferences;
+  metrics: UserMetrics;
+};
 
 export interface Meal {
   id: string;
