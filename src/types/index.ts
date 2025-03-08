@@ -99,9 +99,9 @@ export interface MealItem {
 }
 
 // Core type definitions
-export interface User {
+export type UserData = {
   id: string;
-  username: string; // user's display name
+  username: string;
   email: string;
   bloodType: BloodType;
   isAdmin: boolean;
@@ -113,7 +113,9 @@ export interface User {
     complianceRate: number;
     weightHistory: WeightEntry[];
   };
-}
+};
+
+export interface User extends UserData {}
 
 export interface Meal {
   id: string;
