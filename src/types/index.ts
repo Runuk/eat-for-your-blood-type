@@ -103,7 +103,7 @@ export interface User {
   /** Unique identifier for the user */
   id: string;
   /** User's display name */
-  userName: string;
+  username: string;
   /** User's email address */
   email: string;
   /** User's blood type */
