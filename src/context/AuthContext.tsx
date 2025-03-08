@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const mockUser: User = {
         id: Math.random().toString(36).substr(2, 9),
-        name: name,
+        name,
         email,
         bloodType,
         isAdmin: false,
