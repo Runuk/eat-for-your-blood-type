@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const mockUser: User = {
         id: '1',
-        username: 'John Doe',
+        name: 'John Doe',
         email: email,
         bloodType: BloodType.APositive,
         isAdmin: false,
@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const mockUser: User = {
         id: Math.random().toString(36).substr(2, 9),
-        username: name,
+        name: name,
         email,
         bloodType,
         isAdmin: false,
