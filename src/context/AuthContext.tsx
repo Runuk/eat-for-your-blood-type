@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User } from '../types';
+import type { User, NotificationPreferences } from '../types';
 import { BloodType } from '../types';
 
 // Ensure we're using the correct type
@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name: 'John Doe',
         email: email,
         bloodType: BloodType.APositive,
-        notifications: {
+        notificationPreferences: {
           mealPrep: true,
           shoppingList: true,
           mealLogging: true,
@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name,
         email,
         bloodType,
-        notifications: {
+        notificationPreferences: {
           mealPrep: true,
           shoppingList: true,
           mealLogging: true,
