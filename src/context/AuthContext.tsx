@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User, UserPreferences, UserMetrics } from '../types';
+import type { User } from '../types';
 import { BloodType } from '../types';
 
 // Ensure we're using the correct type
@@ -43,19 +43,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name: 'John Doe',
         email: email,
         bloodType: BloodType.APositive,
-        preferences: {
-          dietaryRestrictions: [],
-          notifications: {
-            mealPrep: true,
-            shoppingList: true,
-            mealLogging: true,
-            weeklyProgress: true
-          }
+        notifications: {
+          mealPrep: true,
+          shoppingList: true,
+          mealLogging: true,
+          weeklyProgress: true
         },
-        metrics: {
-          complianceRate: 0,
-          weightHistory: []
-        }
+        dietaryRestrictions: [],
+        complianceRate: 0,
+        weightHistory: []
       };
       setUser(mockUser);
       localStorage.setItem('user', JSON.stringify(mockUser));
@@ -77,19 +73,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name,
         email,
         bloodType,
-        preferences: {
-          dietaryRestrictions: [],
-          notifications: {
-            mealPrep: true,
-            shoppingList: true,
-            mealLogging: true,
-            weeklyProgress: true
-          }
+        notifications: {
+          mealPrep: true,
+          shoppingList: true,
+          mealLogging: true,
+          weeklyProgress: true
         },
-        metrics: {
-          complianceRate: 0,
-          weightHistory: []
-        }
+        dietaryRestrictions: [],
+        complianceRate: 0,
+        weightHistory: []
       };
 
       setUser(mockUser);

@@ -120,8 +120,16 @@ export interface User {
   name: string;
   email: string;
   bloodType: BloodType;
-  preferences: UserPreferences;
-  metrics: UserMetrics;
+  notifications: {
+    mealPrep: boolean;
+    shoppingList: boolean;
+    mealLogging: boolean;
+    weeklyProgress: boolean;
+    reminderTime?: string;
+  };
+  dietaryRestrictions: string[];
+  complianceRate: number;
+  weightHistory: number[];
 }
 
 export interface Meal {
