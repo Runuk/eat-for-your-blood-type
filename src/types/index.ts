@@ -122,8 +122,8 @@ export interface User {
   name: string;
   email: string;
   bloodType: BloodType;
-  preferences: UserPreferences;
-  metrics: UserMetrics;
+  notificationPreferences: NotificationPreferences;
+  weightHistory: number[];
 }
 
 export interface Meal {
