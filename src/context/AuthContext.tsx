@@ -43,7 +43,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name: 'John Doe',
         email: email,
         bloodType: BloodType.APositive,
-        isAdmin: false,
         preferences: {
           dietaryRestrictions: [],
           notifications: {
@@ -78,7 +77,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name,
         email,
         bloodType,
-        isAdmin: false,
         preferences: {
           dietaryRestrictions: [],
           notifications: {
