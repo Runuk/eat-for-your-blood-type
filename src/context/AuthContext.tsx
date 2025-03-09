@@ -43,15 +43,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name: 'John Doe',
         email: email,
         bloodType: BloodType.APositive,
-        notifications: {
-          mealPrep: true,
-          shoppingList: true,
-          mealLogging: true,
-          weeklyProgress: true
+        preferences: {
+          dietaryRestrictions: [],
+          notifications: {
+            mealPrep: true,
+            shoppingList: true,
+            mealLogging: true,
+            weeklyProgress: true
+          }
         },
-        dietaryRestrictions: [],
-        complianceRate: 0,
-        weightHistory: []
+        metrics: {
+          complianceRate: 0,
+          weightHistory: []
+        }
       };
       setUser(mockUser);
       localStorage.setItem('user', JSON.stringify(mockUser));
@@ -73,15 +77,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name,
         email,
         bloodType,
-        notifications: {
-          mealPrep: true,
-          shoppingList: true,
-          mealLogging: true,
-          weeklyProgress: true
+        preferences: {
+          dietaryRestrictions: [],
+          notifications: {
+            mealPrep: true,
+            shoppingList: true,
+            mealLogging: true,
+            weeklyProgress: true
+          }
         },
-        dietaryRestrictions: [],
-        complianceRate: 0,
-        weightHistory: []
+        metrics: {
+          complianceRate: 0,
+          weightHistory: []
+        }
       };
 
       setUser(mockUser);
