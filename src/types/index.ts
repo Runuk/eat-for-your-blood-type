@@ -109,22 +109,17 @@ export interface UserMetrics {
   weightHistory: WeightEntry[];
 }
 
-export interface User {
-  /** Unique identifier for the user */
+export interface BaseUser {
   id: string;
-  /** User's display name */
   name: string;
-  /** User's email address */
   email: string;
-  /** User's blood type */
   bloodType: BloodType;
-  /** Whether the user has admin privileges */
   isAdmin: boolean;
-  /** User preferences */
   preferences: UserPreferences;
-  /** User metrics */
   metrics: UserMetrics;
 }
+
+export type User = BaseUser;
 
 export interface Meal {
   id: string;

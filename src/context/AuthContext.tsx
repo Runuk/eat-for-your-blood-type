@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User } from '../types';
+import type { User, BaseUser } from '../types';
 import { BloodType } from '../types';
 
 // Ensure we're using the correct type
@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     try {
-      const mockUser: User = {
+      const mockUser: BaseUser = {
         id: '1',
         name: 'John Doe',
         email: email,
@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const mockUser: User = {
+      const mockUser: BaseUser = {
         id: Math.random().toString(36).substr(2, 9),
         name,
         email,
