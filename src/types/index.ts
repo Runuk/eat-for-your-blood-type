@@ -101,13 +101,7 @@ export interface MealItem {
 // Core type definitions
 export interface UserPreferences {
   dietaryRestrictions: string[];
-  notifications: {
-    mealPrep: boolean;
-    shoppingList: boolean;
-    mealLogging: boolean;
-    weeklyProgress: boolean;
-    reminderTime?: string;
-  };
+  notifications: NotificationPreferences;
 }
 
 export interface UserMetrics {
@@ -120,16 +114,8 @@ export interface User {
   name: string;
   email: string;
   bloodType: BloodType;
-  notifications: {
-    mealPrep: boolean;
-    shoppingList: boolean;
-    mealLogging: boolean;
-    weeklyProgress: boolean;
-    reminderTime?: string;
-  };
-  dietaryRestrictions: string[];
-  complianceRate: number;
-  weightHistory: number[];
+  preferences: UserPreferences;
+  metrics: UserMetrics;
 }
 
 export interface Meal {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User } from '../types';
+import type { User, UserPreferences, UserMetrics } from '../types';
 import { BloodType } from '../types';
 
 // Ensure we're using the correct type
