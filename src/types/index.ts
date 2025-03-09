@@ -104,6 +104,7 @@ export interface UserNotifications {
   shoppingList: boolean;
   mealLogging: boolean;
   weeklyProgress: boolean;
+  reminderTime?: string;
 }
 
 export interface UserPreferences {
@@ -121,8 +122,8 @@ export interface User {
   name: string;
   email: string;
   bloodType: BloodType;
-  notificationPreferences: NotificationPreferences;
-  weightHistory: number[];
+  preferences: UserPreferences;
+  metrics: UserMetrics;
 }
 
 export interface Meal {
