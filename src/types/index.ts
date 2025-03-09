@@ -114,8 +114,10 @@ export interface User {
   name: string;
   email: string;
   bloodType: BloodType;
-  preferences: UserPreferences;
-  metrics: UserMetrics;
+  notificationPreferences: NotificationPreferences;
+  dietaryRestrictions: string[];
+  complianceRate: number;
+  weightHistory: number[];
 }
 
 export interface Meal {
